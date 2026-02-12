@@ -1,0 +1,25 @@
+@import '@fontsource-variable/newsreader';
+@import '@fontsource-variable/newsreader/wght-italic.css';
+@import '@fontsource-variable/roboto';
+
+
+:root {
+	--font-serif: 'Newsreader Variable', serif;
+    --font-sans-serif: 'Roboto Variable', sans-serif;
+    --color-bg: #FDFBF6FD;
+    --color-bg-dark: #222222;
+    --color-text: #121212;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: inherit;
+}
+
+body {
+    font-size: 62.5%;
+    box-sizing: border-box;
+    background-color: var(--color-bg);
+    font-family: var(--font-serif);
+}

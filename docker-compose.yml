@@ -1,0 +1,19 @@
+services:
+  sveltekit-app:
+    build: .
+    container_name: sveltekit-app
+    ports:
+      - '4800:4800'
+    restart: always
+    volumes:
+      - ./data:/src
+    env_file:
+      - .env
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+volumes:
+  data:
