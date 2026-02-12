@@ -1,9 +1,12 @@
-# Stage 1: Build the application using Bun (faster)
-FROM oven/bun:alpine AS builder
+# Stage 1: Build the application using Node.js (more stable for SvelteKit builds)
+FROM node:20-slim AS builder
 WORKDIR /app
 
+# Install Bun to handle dependencies
+RUN npm install -g bun
+
 # Copy dependency files
-COPY package.json bun.lockb* ./
+COPY package.json bun.lockb* package-lock.json* ./
 
 # Install dependencies
 RUN bun install
@@ -11,11 +14,13 @@ RUN bun install
 # Copy source code
 COPY . .
 
-# Build the application
-RUN bun run build
+ENV CI=true
+
+# Build the application using Node.js
+RUN npm run build
 
 # Prune dev dependencies (create a clean node_modules for production)
-RUN rm -rf node_modules && bun install --production
+RUN rm -rf node_modules && bun install --production --no-frozen-lockfile
 
 # Stage 2: Production runtime
 FROM node:20-alpine AS runner

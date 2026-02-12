@@ -3,7 +3,7 @@ services:
     build: .
     container_name: sveltekit-app
     ports:
-      - '4800:4800'
+      - '127.0.0.1:4800:4800'
     restart: always
     env_file:
       - .env
