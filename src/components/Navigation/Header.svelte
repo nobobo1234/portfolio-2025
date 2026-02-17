@@ -30,6 +30,10 @@
 
     let collapseThreshold = $derived((expandedHeight || navHeight) + 12);
 
+    onNavigate(() => {
+        isMobileMenuOpen = false;
+    });
+
     $effect(() => {
         const query = window.matchMedia('(max-width: 640px)');
         isMobile = query.matches;

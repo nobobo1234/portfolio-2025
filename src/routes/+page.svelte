@@ -101,7 +101,7 @@
 			img="/danique.png"
 		/>
 		<Project
-			name="Landelijke Econometristendag"
+			name="National Econometriciansday"
 			slug="led"
 			subtitle="Website for the National Econometriciansday in the Netherlands"
 			year={2025}
