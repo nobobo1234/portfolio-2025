@@ -45,6 +45,10 @@
 			line-height: 1.1;
 			margin-bottom: 2rem;
 
+            word-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+
 			/* Responsive size */
 			@media (max-width: 768px) {
 				font-size: 3.5rem;

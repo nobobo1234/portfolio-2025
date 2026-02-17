@@ -51,6 +51,9 @@
 		display: inline-block;
 		width: fit-content;
 
+        word-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
 	}
 
 	.article-title__wrapper {
