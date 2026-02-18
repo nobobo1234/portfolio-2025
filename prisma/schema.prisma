@@ -1,0 +1,39 @@
+// Prisma schema for a single-admin portfolio site.
+// Stores session IDs as SHA-256 hashes (never raw tokens).
+
+generator client {
+    provider = "prisma-client"
+    output   = "./generated"
+}
+
+datasource db {
+    provider = "sqlite"
+}
+
+model User {
+    id           Int       @id @default(autoincrement())
+    username     String    @unique
+    passwordHash String
+    sessions     Session[]
+}
+
+model Session {
+    // SHA-256 hash (hex) of the raw session token.
+    id        String   @id
+    userId    Int
+    expiresAt DateTime
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([expiresAt])
+}
+
+model LoginAttempt {
+    id               String    @id @default(uuid())
+    ipAddress        String    @unique
+    attempts         Int       @default(0)
+    lockoutExpiresAt DateTime?
+
+    @@index([lockoutExpiresAt])
+}
