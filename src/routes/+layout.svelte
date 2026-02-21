@@ -2,11 +2,11 @@
 	import Header from '$components/Navigation/Header.svelte';
 	import '../app.css';
 	import { onMount, tick } from 'svelte';
-	import type { Navigation } from '@sveltejs/kit';
 	import Lenis from 'lenis';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	import { SplitText } from 'gsap/SplitText';
+    import AdminBubble from '$components/AdminBubble.svelte';
 	// Import navigation helpers
 	import { onNavigate, afterNavigate, beforeNavigate, disableScrollHandling } from '$app/navigation';
 
@@ -165,7 +165,8 @@
 		document.documentElement.style.setProperty('--click-y', `${y}px`);
 	}
 
-	let { children } = $props();
+	let { children, data } = $props();
+    let isAdmin = !!data.user;
 </script>
 
 <svelte:window onclick={captureClick} />
@@ -177,6 +178,10 @@
 	</main>
 
 	<footer></footer>
+
+    {#if isAdmin}
+        <AdminBubble />
+    {/if}
 </div>
 
 <style>
