@@ -7,6 +7,7 @@
 	import ScrubLine from '$components/ScrubLine.svelte';
 	import ArticleTitle from '$components/ArticleTitle.svelte';
 	import type { Action } from 'svelte/action';
+	import nameImage from '$lib/images/image.png';
 
 	let tl = gsap.timeline();
 
@@ -66,7 +67,12 @@
 
 <section id="about" class="about">
 	<div class="column-2">
-		<h1 class="big-title" use:parallaxBig>Hi I'm Noah</h1>
+		<h1 class="big-title" use:parallaxBig>
+			Hi I'm
+			<span>
+				Noah
+			</span>
+		</h1>
 		<p class="about__text">
 			I make and design websites for people like you. Not just single pages, but spaces that reflect
 			your personality. Good websites should feel like a second language you already spoke, not

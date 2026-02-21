@@ -2,7 +2,7 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import crypto from 'node:crypto';
 import { prisma } from '$lib/server/prisma';
 
-const SESSION_COOKIE_NAME = 'admin_session';
+export const SESSION_COOKIE_NAME = 'admin_session';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 const SLIDING_WINDOW_MS = 1000 * 60 * 60 * 24 * 15; // 15 days
 
