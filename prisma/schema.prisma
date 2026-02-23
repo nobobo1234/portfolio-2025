@@ -37,3 +37,10 @@ model LoginAttempt {
 
     @@index([lockoutExpiresAt])
 }
+
+model HomeContent {
+    id            String   @id
+    startQuoteDoc String
+    heroSubtitle  String   @default("For anyone trying to feel like themselves online.")
+    updatedAt     DateTime @updatedAt
+}

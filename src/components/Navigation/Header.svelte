@@ -1,12 +1,11 @@
-<script>
+<script lang="ts">
 	import Underlined from '$components/Underlined.svelte';
 	import { tick } from 'svelte';
 	import { page } from '$app/state';
     import { onNavigate } from '$app/navigation';
 
 	const href = '/';
-    /** @type {HTMLElement} */
-	let navEl = $state();
+	let navEl: HTMLElement | undefined = $state();
     let navHeight = $state(0);
     let expandedHeight = $state(0);
 
@@ -38,7 +37,7 @@
         const query = window.matchMedia('(max-width: 640px)');
         isMobile = query.matches;
         
-        const handler = e => (isMobile = e.matches);
+        const handler = (e: MediaQueryListEvent) => (isMobile = e.matches);
         query.addEventListener('change', handler);
         return () => query.removeEventListener('change', handler);
     })
@@ -61,7 +60,7 @@
         updateActiveSection();
     })
 
-	const animateFlip = async (nextCondensed) => {
+	const animateFlip = async (nextCondensed: boolean) => {
         if (!navEl || flipRunning) {
             isCondensed = nextCondensed;
             return;
@@ -134,9 +133,12 @@
         activeId = currentId;
     }
 
-    const onClick = (e) => {
-        e.currentTarget.style.setProperty('--click-x', `${e.clientX}px`);
-		e.currentTarget.style.setProperty('--click-y', `${e.clientY}px`);
+    const onClick = (e: MouseEvent) => {
+        const target = e.currentTarget as HTMLElement | null;
+        if (!target) return;
+
+        target.style.setProperty('--click-x', `${e.clientX}px`);
+		target.style.setProperty('--click-y', `${e.clientY}px`);
     }
 </script>
 

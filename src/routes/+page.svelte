@@ -6,14 +6,15 @@
 	import Project from '$components/Project.svelte';
 	import ScrubLine from '$components/ScrubLine.svelte';
 	import ArticleTitle from '$components/ArticleTitle.svelte';
-	import type { Action } from 'svelte/action';
-	import nameImage from '$lib/images/image.png';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
 
 	let tl = gsap.timeline();
 
 	// The parallax effect: Starts moved UP by 20% (-20), and scrubs to 0 (natural position).
 	// This creates a "heavy" feeling where the text moves slower than the scroll.
-	const parallaxBig: Action = (node) => {
+	const parallaxBig = (node: HTMLElement) => {
 		return aniFrom(node, {
 			yPercent: -20,
 			ease: 'none',
@@ -42,12 +43,17 @@
 			ease: 'power2'
 		}}
 	>
-		<span>I make websites like I make music,</span>
-		<span
-			><Underlined i>singing</Underlined> and just a little bit <Underlined i
-				>unpredictable</Underlined
-			>.</span
-		>
+		<span>
+			{#each data.startQuoteTokens as token}
+				{#if token.type === 'break'}
+					<br />
+				{:else if token.italic}
+					<Underlined i>{token.text}</Underlined>
+				{:else}
+					{token.text}
+				{/if}
+			{/each}
+		</span>
 	</h2>
 	<h4
 		use:aniFrom={{
@@ -61,7 +67,7 @@
 			when: '=-0.5'
 		}}
 	>
-		For anyone trying to feel like themselves online.
+		{data.heroSubtitle}
 	</h4>
 </header>
 
