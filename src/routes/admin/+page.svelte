@@ -2,7 +2,7 @@
 	import SmallTitle from '$components/SmallTitle.svelte';
 	import { Tipex, type TipexEditor } from '@friendofsvelte/tipex';
 	import type { EditorEvents } from '@tiptap/core';
-	import '@friendofsvelte/tipex/styles/index.css';
+	import tipexStylesHref from '@friendofsvelte/tipex/styles/index.css?url';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -11,6 +11,40 @@
 	let startQuoteDocJson = $state(data.startQuoteDocJson);
 	let heroSubtitle = $state(data.heroSubtitle);
 	let editorReady = $state(false);
+
+	const TIPEX_STYLE_OWNER_ATTR = 'data-admin-tipex-style-owner';
+	const TIPEX_STYLE_LINK_ATTR = 'data-admin-tipex-style';
+
+	$effect(() => {
+		const existingLink = document.head.querySelector<HTMLLinkElement>(`link[${TIPEX_STYLE_LINK_ATTR}]`);
+		if (existingLink) {
+			existingLink.setAttribute(TIPEX_STYLE_OWNER_ATTR, String((Number(existingLink.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '0') || 0) + 1));
+			return () => {
+				const currentOwners = Number(existingLink.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '1') || 1;
+				if (currentOwners <= 1) {
+					existingLink.remove();
+				} else {
+					existingLink.setAttribute(TIPEX_STYLE_OWNER_ATTR, String(currentOwners - 1));
+				}
+			};
+		}
+
+		const link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = tipexStylesHref;
+		link.setAttribute(TIPEX_STYLE_LINK_ATTR, 'true');
+		link.setAttribute(TIPEX_STYLE_OWNER_ATTR, '1');
+		document.head.append(link);
+
+		return () => {
+			const currentOwners = Number(link.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '1') || 1;
+			if (currentOwners <= 1) {
+				link.remove();
+			} else {
+				link.setAttribute(TIPEX_STYLE_OWNER_ATTR, String(currentOwners - 1));
+			}
+		};
+	});
 
 	function handleEditorCreate(event: EditorEvents['create']) {
 		const tiptapEditor = event.editor;
@@ -101,7 +135,6 @@
 		flex-direction: column;
 		gap: 2.5rem;
 
-		/* Reduce padding on mobile */
 		@media (max-width: 768px) {
 			padding: 4rem 2rem;
 		}
@@ -178,7 +211,6 @@
 		color: #067647;
 	}
 
-	/* Fallback utility sizing for icon classes used in the Tipex toolbar. */
 	:global(.admin-tipex .h-4) {
 		height: 1rem;
 	}
