@@ -59,7 +59,13 @@
 		role="menu"
         transition:slide={{ duration: 500, easing: backOut, axis: 'y'}}
 	>
-		<a class="admin-bubble__item" onclick={closeMenu} href="/admin" aria-label="Admin dashboard" role="menuitem">
+		<a
+			class="admin-bubble__item"
+			onclick={closeMenu}
+			href="/admin"
+			aria-label="Admin dashboard"
+			role="menuitem"
+		>
 			<svg
 				width="20"
 				height="20"
