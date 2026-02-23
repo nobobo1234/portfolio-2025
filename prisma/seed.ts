@@ -2,6 +2,12 @@ import 'dotenv/config';
 import { PrismaClient } from './generated/client';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import argon2 from 'argon2';
+import {
+	DEFAULT_HERO_SUBTITLE,
+	DEFAULT_START_QUOTE_DOC,
+	HOME_CONTENT_ID,
+	startQuoteDocToJson
+} from '../src/lib/content/hero';
 
 const ADMIN_USERNAME = 'admin';
 // Read the admin password from the environment; never hardcode secrets.
@@ -36,6 +42,16 @@ async function main() {
 		create: {
 			username: ADMIN_USERNAME,
 			passwordHash
+		}
+	});
+
+	await prisma.homeContent.upsert({
+		where: { id: HOME_CONTENT_ID },
+		update: {},
+		create: {
+			id: HOME_CONTENT_ID,
+			startQuoteDoc: startQuoteDocToJson(DEFAULT_START_QUOTE_DOC),
+			heroSubtitle: DEFAULT_HERO_SUBTITLE
 		}
 	});
 
