@@ -75,16 +75,9 @@
 	<div class="column-2">
 		<h1 class="big-title" use:parallaxBig>
 			Hi I'm
-			<span>
-				Noah
-			</span>
+			<span> Noah </span>
 		</h1>
-		<p class="about__text">
-			I make and design websites for people like you. Not just single pages, but spaces that reflect
-			your personality. Good websites should feel like a second language you already spoke, not
-			something that screams. I’ve been coding websites since I was 11. Mostly out of curiosity, but
-			honestly, because I’ve always been a little obsessed. That part hasn’t really changed.
-		</p>
+		<p class="about__text">{data.aboutSection}</p>
 	</div>
 </section>
 
@@ -263,6 +256,7 @@
 		.about__text {
 			font-size: 2rem;
 			margin-top: 10rem;
+			white-space: pre-line;
 
 			@media (max-width: 768px) {
 				font-size: 1.2rem;

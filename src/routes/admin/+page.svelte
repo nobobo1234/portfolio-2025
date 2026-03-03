@@ -10,15 +10,21 @@
 	let editor: TipexEditor = $state();
 	let startQuoteDocJson = $state(data.startQuoteDocJson);
 	let heroSubtitle = $state(data.heroSubtitle);
+	let aboutSection = $state(data.aboutSection);
 	let editorReady = $state(false);
 
 	const TIPEX_STYLE_OWNER_ATTR = 'data-admin-tipex-style-owner';
 	const TIPEX_STYLE_LINK_ATTR = 'data-admin-tipex-style';
 
 	$effect(() => {
-		const existingLink = document.head.querySelector<HTMLLinkElement>(`link[${TIPEX_STYLE_LINK_ATTR}]`);
+		const existingLink = document.head.querySelector<HTMLLinkElement>(
+			`link[${TIPEX_STYLE_LINK_ATTR}]`
+		);
 		if (existingLink) {
-			existingLink.setAttribute(TIPEX_STYLE_OWNER_ATTR, String((Number(existingLink.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '0') || 0) + 1));
+			existingLink.setAttribute(
+				TIPEX_STYLE_OWNER_ATTR,
+				String((Number(existingLink.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '0') || 0) + 1)
+			);
 			return () => {
 				const currentOwners = Number(existingLink.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '1') || 1;
 				if (currentOwners <= 1) {
@@ -69,7 +75,8 @@
 	<section class="editor-card">
 		<h2>Start quote</h2>
 		<p class="editor-card__hint">
-			Use italic in the editor for words that should render with the underline style on the homepage.
+			Use italic in the editor for words that should render with the underline style on the
+			homepage.
 		</p>
 
 		<Tipex
@@ -81,26 +88,26 @@
 			{#snippet controlComponent(tipex)}
 				<div class="tipex-controller">
 					<div class="tipex-basic-controller-wrapper">
-					<button
-						type="button"
-						class="tipex-edit-button tipex-button-extra tipex-button-rigid"
-						class:active={tipex?.isActive('italic')}
-						onclick={() => tipex?.chain().focus().toggleMark('italic').run()}
-						aria-label="Italic"
-						title="Italic (⌘+I)"
-					>
-						<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-							<path
-								d="M7.991 11.674 9.53 4.455c.123-.595.246-.71 1.347-.807l.11-.52H7.211l-.11.52c1.06.096 1.128.212 1.005.807L6.57 11.674c-.123.595-.246.71-1.346.806l-.11.52h3.774l.11-.52c-1.06-.095-1.129-.211-1.006-.806z"
-							/>
-						</svg>
-					</button>
+						<button
+							type="button"
+							class="tipex-edit-button tipex-button-extra tipex-button-rigid"
+							class:active={tipex?.isActive('italic')}
+							onclick={() => tipex?.chain().focus().toggleMark('italic').run()}
+							aria-label="Italic"
+							title="Italic (⌘+I)"
+						>
+							<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+								<path
+									d="M7.991 11.674 9.53 4.455c.123-.595.246-.71 1.347-.807l.11-.52H7.211l-.11.52c1.06.096 1.128.212 1.005.807L6.57 11.674c-.123.595-.246.71-1.346.806l-.11.52h3.774l.11-.52c-1.06-.095-1.129-.211-1.006-.806z"
+								/>
+							</svg>
+						</button>
 					</div>
 				</div>
 			{/snippet}
 		</Tipex>
 
-		<form method="POST" action="/admin" class="editor-form">
+		<form method="POST" action="?/saveStartQuote" class="editor-form">
 			<input type="hidden" name="startQuoteDoc" value={startQuoteDocJson} />
 			<label class="subtitle-input">
 				<span>Hero subtitle</span>
@@ -112,15 +119,44 @@
 					required
 				/>
 			</label>
-			<button type="submit" disabled={!editorReady}>Save quote</button>
+			<button type="submit" disabled={!editorReady}>Save</button>
 		</form>
 
-		{#if form?.error}
-			<p class="status status--error">{form.error}</p>
+		{#if form?.startQuoteError}
+			<p class="status status--error">{form.startQuoteError}</p>
 		{/if}
 
-		{#if data.justSaved}
+		{#if data.justSavedStartQuote}
 			<p class="status status--success">Start quote saved.</p>
+		{/if}
+	</section>
+
+	<section class="editor-card">
+		<h2>About</h2>
+
+		<form method="POST" action="?/saveAbout" class="editor-form">
+			<label class="subtitle-input subtitle-input--full">
+				<span>About section</span>
+				<div class="about-textarea-shell">
+					<textarea
+						class="about-textarea"
+						name="aboutSection"
+						bind:value={aboutSection}
+						maxlength={data.aboutSectionMaxLength}
+						required
+						placeholder="Write your about section..."
+					></textarea>
+				</div>
+			</label>
+			<button type="submit">Save</button>
+		</form>
+
+		{#if form?.aboutError}
+			<p class="status status--error">{form.aboutError}</p>
+		{/if}
+
+		{#if data.justSavedAbout}
+			<p class="status status--success">About section saved.</p>
 		{/if}
 	</section>
 </div>
@@ -163,8 +199,8 @@
 
 	.editor-form {
 		display: flex;
-		align-items: flex-end;
-		flex-wrap: wrap;
+		align-items: flex-start;
+		flex-direction: column;
 		gap: 0.75rem;
 	}
 
@@ -176,13 +212,50 @@
 		font-size: 0.85rem;
 	}
 
+	.subtitle-input--full {
+		width: min(52rem, 100%);
+	}
+
 	.subtitle-input input {
 		border: 1px solid color-mix(in srgb, var(--color-text) 20%, white);
 		background-color: white;
 		color: var(--color-text);
 		padding: 0.5rem 0.65rem;
-		font-size: 0.95rem;
+		font-size: var(--text-tipex-base);
 		min-height: 2.2rem;
+	}
+
+	.about-textarea-shell {
+		width: 100%;
+		background: var(--color-tipex-100);
+		border: 1px solid color-mix(in srgb, var(--color-text) 20%, white);
+		border-radius: 0.5rem;
+		overflow: hidden;
+		transition:
+			border-color 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.about-textarea-shell:focus-within {
+		border-color: color-mix(in srgb, var(--color-text) 50%, white);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-text) 10%, transparent);
+	}
+
+	.about-textarea {
+		display: block;
+		width: 100%;
+		min-height: 12rem;
+		padding: 1rem 0.5rem;
+		border: none;
+		outline: none;
+		resize: none;
+		color: var(--color-text);
+		font-size: var(--text-tipex-base);
+		font-family: var(--font-serif);
+	}
+
+	.about-textarea::placeholder {
+		color: color-mix(in srgb, var(--color-text) 50%, white);
 	}
 
 	.editor-form button {
