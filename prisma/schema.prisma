@@ -2,46 +2,75 @@
 // Stores session IDs as SHA-256 hashes (never raw tokens).
 
 generator client {
-    provider = "prisma-client"
-    output   = "./generated"
+  provider = "prisma-client"
+  output   = "./generated"
 }
 
 datasource db {
-    provider = "sqlite"
+  provider = "sqlite"
 }
 
 model User {
-    id           Int       @id @default(autoincrement())
-    username     String    @unique
-    passwordHash String
-    sessions     Session[]
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  sessions     Session[]
 }
 
 model Session {
-    // SHA-256 hash (hex) of the raw session token.
-    id        String   @id
-    userId    Int
-    expiresAt DateTime
+  // SHA-256 hash (hex) of the raw session token.
+  id        String   @id
+  userId    Int
+  expiresAt DateTime
 
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
-    @@index([expiresAt])
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model LoginAttempt {
-    id               String    @id @default(uuid())
-    ipAddress        String    @unique
-    attempts         Int       @default(0)
-    lockoutExpiresAt DateTime?
+  id               String    @id @default(uuid())
+  ipAddress        String    @unique
+  attempts         Int       @default(0)
+  lockoutExpiresAt DateTime?
 
-    @@index([lockoutExpiresAt])
+  @@index([lockoutExpiresAt])
 }
 
 model HomeContent {
-    id            String   @id
-    startQuoteDoc String
-    heroSubtitle  String   @default("For anyone trying to feel like themselves online.")
-    aboutSection  String   @default("I make and design websites for people like you. Not just single pages, but spaces that reflect your personality. Good websites should feel like a second language you already spoke, not something that screams. I’ve been coding websites since I was 11. Mostly out of curiosity, but honestly, because I’ve always been a little obsessed. That part hasn’t really changed.")
-    updatedAt     DateTime @updatedAt
+  id            String   @id
+  startQuoteDoc String
+  heroSubtitle  String   @default("For anyone trying to feel like themselves online.")
+  aboutSection  String   @default("I make and design websites for people like you. Not just single pages, but spaces that reflect your personality. Good websites should feel like a second language you already spoke, not something that screams. I’ve been coding websites since I was 11. Mostly out of curiosity, but honestly, because I’ve always been a little obsessed. That part hasn’t really changed.")
+  updatedAt     DateTime @updatedAt
+}
+
+model Project {
+  id        String   @id @default(cuid(2))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  slug      String   @unique
+
+  title        String
+  subtitle     String
+  content      String // Rich TEXT JSON
+  client       String
+  year         String
+  services     String
+  demoUrl      String
+  githubUrl    String?
+  bannerImgUrl String
+  technology   String
+}
+
+model Blog {
+  id        String   @id @default(cuid(2))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  slug      String   @unique
+
+  title       String
+  publishedAt DateTime
+  content     String // Rich TEXT JSON
 }
