@@ -106,11 +106,14 @@
 
 <section id="writings" class="writings">
 	<SmallTitle>writings</SmallTitle>
-	<ArticleTitle date="21-05-2025" slug="transformers"
-		>On predicting phrasing with transformers.</ArticleTitle
-	>
-	<ArticleTitle date="21-05-2025" slug="svelte-5">On learning Svelte 5.</ArticleTitle>
-	<ArticleTitle date="21-05-2025" slug="designing-users">On web designing users.</ArticleTitle>
+	{#each data.blogs as post (post.slug)}
+		<ArticleTitle
+			date={post.publishedAt.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')}
+			slug={post.slug}
+		>{post.title}</ArticleTitle>
+	{:else}
+		<p class="writings-empty">No posts yet.</p>
+	{/each}
 </section>
 
 <section class="contact" id="contact">
@@ -169,6 +172,12 @@
 	:global(.projects-empty) {
 		font-size: 1.2rem;
 		color: #9ca3af;
+		padding: 2rem 0;
+	}
+
+	.writings-empty {
+		font-size: 1.2rem;
+		color: rgba(255, 255, 255, 0.5);
 		padding: 2rem 0;
 	}
 

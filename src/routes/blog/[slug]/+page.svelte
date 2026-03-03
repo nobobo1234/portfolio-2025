@@ -3,29 +3,29 @@
 	import { buildPostTransitionClasses } from '$lib/view-transition';
 	import type { PageProps } from './$types';
 
-	const { params }: PageProps = $props();
+	const { data, params }: PageProps = $props();
 
 	const slug = $derived(params?.slug ?? '');
 	const transitionClasses = $derived(buildPostTransitionClasses(slug));
+
+	function formatDate(date: Date | string): string {
+		return new Date(date).toLocaleDateString('en-GB', {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric'
+		});
+	}
 </script>
 
 <div class="blog-post">
 	<CloseButton top="6rem" right="3rem" color="white" />
 	<header class="blog-header">
-		<h1 class={transitionClasses.titleClass}>On predicting phrasing with transformers.</h1>
-		<span class={transitionClasses.dateClass}>21-05-2025</span>
+		<h1 class={transitionClasses.titleClass}>{data.post.title}</h1>
+		<span class={transitionClasses.dateClass}>{formatDate(data.post.publishedAt)}</span>
 	</header>
 
 	<article class="content">
-		<p>
-			This is where your blog post content goes. Because we used the
-			<strong>View Transition API</strong>, the title flew here from the previous page, and the
-			black background expanded from your mouse click.
-		</p>
-		<p>
-			The typography here matches your main site because we are inheriting the global fonts defined
-			in <code>app.css</code>.
-		</p>
+		{@html data.post.contentHtml}
 	</article>
 </div>
 
@@ -71,11 +71,100 @@
 		line-height: 1.6;
 		max-width: 80rem;
 
-		p {
+		:global(p) {
 			margin-bottom: 2rem;
 		}
+
+		:global(h2) {
+			font-size: 3rem;
+			font-weight: 700;
+			margin: 3rem 0 1.5rem;
+			line-height: 1.2;
+		}
+
+		:global(h3) {
+			font-size: 2.4rem;
+			font-weight: 600;
+			margin: 2.5rem 0 1rem;
+			line-height: 1.2;
+		}
+
+		:global(ul),
+		:global(ol) {
+			padding-left: 2.5rem;
+			margin-bottom: 2rem;
+		}
+
+		:global(ul) {
+			list-style: disc;
+		}
+
+		:global(ol) {
+			list-style: decimal;
+		}
+
+		:global(li) {
+			margin-bottom: 0.5rem;
+		}
+
+		:global(li > p) {
+			margin-bottom: 0.5rem;
+		}
+
+		:global(img) {
+			max-width: 100%;
+			border-radius: 0.5rem;
+			margin: 2rem 0;
+			display: block;
+		}
+
+		:global(blockquote) {
+			border-left: 4px solid #4b5563;
+			padding-left: 1.5rem;
+			margin: 2rem 0;
+			color: #9ca3af;
+			font-style: italic;
+		}
+
+		:global(pre) {
+			background: #1f2937;
+			border-radius: 0.5rem;
+			padding: 1.5rem;
+			overflow-x: auto;
+			margin-bottom: 2rem;
+			font-size: 1.4rem;
+		}
+
+		:global(code) {
+			background: rgba(255, 255, 255, 0.1);
+			border-radius: 0.25rem;
+			padding: 0.1em 0.35em;
+			font-size: 0.9em;
+		}
+
+		:global(pre code) {
+			background: none;
+			padding: 0;
+			font-size: inherit;
+		}
+
+		:global(a) {
+			color: white;
+			text-underline-offset: 3px;
+		}
+
+		:global(hr) {
+			border: none;
+			border-top: 1px solid #374151;
+			margin: 3rem 0;
+		}
+
 		@media (max-width: 768px) {
 			font-size: 1.2rem;
+
+			:global(h2) { font-size: 2rem; }
+			:global(h3) { font-size: 1.6rem; }
+			:global(pre) { font-size: 1rem; }
 		}
 	}
 </style>
