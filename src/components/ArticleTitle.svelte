@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { buildPostTransitionClasses } from '$lib/view-transition';
 
 	interface Props {
 		children: Snippet;
@@ -11,6 +12,7 @@
 
 	// Default link if no slug is provided
 	let href = $derived(slug ? `/blog/${slug}` : '#');
+	let transitionClasses = $derived(buildPostTransitionClasses(slug));
 
 	function handleClick(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
 		document.documentElement.style.setProperty('--click-x', `${e.clientX}px`);
@@ -20,8 +22,8 @@
 
 <div class="article-title__wrapper">
 	<a {href} class="article-link" data-sveltekit-preload-data="hover" onclick={handleClick}>
-		<h2 class="article-title" style="view-transition-name: post-title-{slug}; view-transition-class: vt-element">{@render children()}</h2>
-		<span class="article-date" style="view-transition-name: post-date-{slug}; view-transition-class: vt-element">{date}</span>
+		<h2 class={`article-title ${transitionClasses.titleClass}`}>{@render children()}</h2>
+		<span class={`article-date ${transitionClasses.dateClass}`}>{date}</span>
 	</a>
 </div>
 

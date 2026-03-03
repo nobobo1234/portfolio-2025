@@ -1,32 +1,13 @@
 <script lang="ts">
-	import { page } from '$app/state';
+	import { buildProjectTransitionClasses } from '$lib/view-transition';
+	import type { PageProps } from './$types';
 	import CloseButton from '$components/CloseButton.svelte';
 
-	const projects = {
-		ssra: {
-			name: 'SSRA',
-			img: '/ssra2.png',
-			subtitle: 'A website for a student association',
-			demoUrl: 'https://ssra.nl'
-		},
-		'good-vibes': {
-			name: 'Good Vibes Runclub',
-			img: '/danique.png',
-			subtitle: 'Runclub of Danique Hosmar',
-			demoUrl: 'https://goodvibesrunclub.nl'
-		},
-		led: {
-			name: 'Landelijke Econometristendag',
-			img: '/led.png',
-			subtitle: 'National Econometriciansday',
-			demoUrl: 'https://leditbeyourday.nl'
-		}
-	} as const;
+	const { data, params }: PageProps = $props();
 
-	type ProjectSlug = keyof typeof projects;
-
-	const slug = (page.params?.slug ?? 'ssra') as ProjectSlug;
-	const project = projects[slug];
+	const slug = $derived(params.slug);
+	const transitionClasses = $derived(buildProjectTransitionClasses(slug));
+	const project = data.project;
 </script>
 
 <div class="project-page">
@@ -42,7 +23,7 @@
 		<CloseButton top="3rem" right="3rem" color="black" />
 
 		<header class="project-header">
-			<h1 style="view-transition-name: project-title-{slug}; view-transition-class: vt-element">
+			<h1 class={transitionClasses.titleClass}>
 				<span>{project.name}</span>
 				<a
 					class="project-demo-link"
@@ -60,7 +41,7 @@
 					</svg>
 				</a>
 			</h1>
-			<p style="view-transition-name: project-subtitle-{slug}; view-transition-class: vt-element">{project.subtitle}</p>
+			<p class={transitionClasses.subtitleClass}>{project.subtitle}</p>
 		</header>
 
 		<article class="project-description">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { aniFrom } from '$lib/animate';
+	import { buildProjectTransitionClasses } from '$lib/view-transition';
 
 	interface Props {
 		name: string;
@@ -11,6 +12,7 @@
 	}
 
 	let { name, subtitle, year, type, img, slug }: Props = $props();
+	let transitionClasses = $derived(buildProjectTransitionClasses(slug));
 
 	function handleClick(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
 		document.documentElement.style.setProperty('--click-x', `${e.clientX}px`);
@@ -23,8 +25,8 @@
 		class="project__text"
 		use:aniFrom={{ opacity: 0, y: -40, duration: 1, scrollTrigger: { start: 'top 80%' } }}
 	>
-		<span class="project__title" style="view-transition-name: project-title-{slug}; view-transition-class: vt-element">{name}</span>
-		<span class="project__subtitle" style="view-transition-name: project-subtitle-{slug}; view-transition-class: vt-element">{subtitle}</span>
+		<span class={`project__title ${transitionClasses.titleClass}`}>{name}</span>
+		<span class={`project__subtitle ${transitionClasses.subtitleClass}`}>{subtitle}</span>
 		<span class="project__type">{year} - {type}</span>
 
 		<a

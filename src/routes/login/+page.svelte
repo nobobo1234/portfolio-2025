@@ -1,5 +1,7 @@
 <script lang="ts">
-	export let form: { error?: string } | null | undefined;
+    import type { PageProps } from './$types.js';
+
+    const { form }: PageProps = $props();
 </script>
 
 <svelte:head>
