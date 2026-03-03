@@ -138,7 +138,6 @@ const saveAbout: Actions['default'] = async ({ request, cookies }) => {
 };
 
 export const actions: Actions = {
-	default: saveStartQuote,
 	saveStartQuote,
 	saveAbout
 };
