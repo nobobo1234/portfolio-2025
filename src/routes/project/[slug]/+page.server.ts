@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { prisma } from '$lib/server/prisma';
+import { projectContentDocJsonToHtml } from '$lib/content/project-content-render';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const project = await prisma.project.findUnique({
@@ -21,7 +22,8 @@ export const load: PageServerLoad = async ({ params }) => {
 			year: project.year,
 			services: project.services,
 			technology: project.technology,
-			githubUrl: project.githubUrl
+			githubUrl: project.githubUrl ?? null,
+			contentHtml: projectContentDocJsonToHtml(project.content)
 		}
 	};
 };

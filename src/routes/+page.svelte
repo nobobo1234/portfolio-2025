@@ -89,30 +89,18 @@
 		along the way
 	</SmallTitle>
 	<div class="projects-list">
-		<Project
-			name="SSRA"
-			slug="ssra"
-			subtitle="A website for a student association"
-			year={2023}
-			type="wordpress website"
-			img="/ssra2.png"
-		/>
-		<Project
-			name="Good Vibes Runclub"
-			slug="good-vibes"
-			subtitle="Website for the runclub of Danique Hosmar"
-			year={2023}
-			type="html & css with strava integration"
-			img="/danique.png"
-		/>
-		<Project
-			name="National Econometriciansday"
-			slug="led"
-			subtitle="Website for the National Econometriciansday in the Netherlands"
-			year={2025}
-			type="framer-based website"
-			img="/led.png"
-		/>
+		{#each data.projects as p (p.slug)}
+			<Project
+				name={p.title}
+				slug={p.slug}
+				subtitle={p.subtitle}
+				year={p.year}
+				type={p.technology}
+				img={p.bannerImgUrl}
+			/>
+		{:else}
+			<p class="projects-empty">No projects yet.</p>
+		{/each}
 	</div>
 </section>
 
@@ -176,6 +164,12 @@
 
 	.projects {
 		width: 100%;
+	}
+
+	:global(.projects-empty) {
+		font-size: 1.2rem;
+		color: #9ca3af;
+		padding: 2rem 0;
 	}
 
 	.projects-list {

@@ -52,14 +52,21 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		cookies.delete(SAVE_FLASH_COOKIE_NAME, { path: '/admin' });
 	}
 
-	const { startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection } =
-		await loadNormalizedHomeContent();
+	const [{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection }, projects] =
+		await Promise.all([
+			loadNormalizedHomeContent(),
+			prisma.project.findMany({
+				orderBy: { createdAt: 'desc' },
+				select: { id: true, slug: true, title: true, visible: true, createdAt: true }
+			})
+		]);
 
 	return {
 		startQuoteDoc,
 		startQuoteDocJson,
 		heroSubtitle,
 		aboutSection,
+		projects,
 		justSavedStartQuote,
 		justSavedAbout,
 		heroSubtitleMaxLength: HERO_SUBTITLE_MAX_LENGTH,
@@ -137,7 +144,46 @@ const saveAbout: Actions['default'] = async ({ request, cookies }) => {
 	redirect(303, '/admin');
 };
 
+const deleteProject: Actions['default'] = async ({ request }) => {
+	const formData = await request.formData();
+	const slug = formData.get('slug');
+
+	if (typeof slug !== 'string' || !slug.trim()) {
+		return fail(400, { deleteError: 'Missing project slug.' });
+	}
+
+	await prisma.project.delete({ where: { slug } });
+	redirect(303, '/admin');
+};
+
+const toggleVisibility: Actions['default'] = async ({ request }) => {
+	const formData = await request.formData();
+	const slug = formData.get('slug');
+
+	if (typeof slug !== 'string' || !slug.trim()) {
+		return fail(400, { toggleError: 'Missing project slug.' });
+	}
+
+	const project = await prisma.project.findUnique({
+		where: { slug },
+		select: { visible: true }
+	});
+
+	if (!project) {
+		return fail(404, { toggleError: 'Project not found.' });
+	}
+
+	await prisma.project.update({
+		where: { slug },
+		data: { visible: !project.visible }
+	});
+
+	redirect(303, '/admin');
+};
+
 export const actions: Actions = {
 	saveStartQuote,
-	saveAbout
+	saveAbout,
+	deleteProject,
+	toggleVisibility
 };
