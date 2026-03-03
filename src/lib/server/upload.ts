@@ -4,8 +4,7 @@ import crypto from 'node:crypto';
 import sharp from 'sharp';
 
 /** Where uploaded images are stored. Override with the UPLOAD_DIR env var (used in Docker). */
-export const UPLOAD_DIR =
-	process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'uploads');
+export const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'uploads');
 
 /** Hard server-side limit: 5 MB */
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -85,9 +84,7 @@ export async function processAndSaveImage(file: File): Promise<string> {
 
 	const imageType = detectImageType(input);
 	if (!imageType) {
-		throw new Error(
-			'Invalid file type. Only JPEG, PNG, and WebP images are allowed.'
-		);
+		throw new Error('Invalid file type. Only JPEG, PNG, and WebP images are allowed.');
 	}
 
 	// 3. Generate a safe, random filename – the original name is never used.
@@ -102,9 +99,7 @@ export async function processAndSaveImage(file: File): Promise<string> {
 	//    - Strips all EXIF / metadata (withMetadata() is NOT called).
 	//    - Redraws the image from raw pixel data, destroying any steganographic payload.
 	//    - Produces a clean, canonical file.
-	await sharp(Buffer.from(arrayBuffer))
-		.toFormat(imageType, { quality: 85 })
-		.toFile(destPath);
+	await sharp(Buffer.from(arrayBuffer)).toFormat(imageType, { quality: 85 }).toFile(destPath);
 
 	// 6. Return the public path served by the /uploads/[filename] route.
 	return `/uploads/${filename}`;

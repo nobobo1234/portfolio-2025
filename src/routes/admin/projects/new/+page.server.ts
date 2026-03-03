@@ -58,7 +58,10 @@ export const actions: Actions = {
 		try {
 			rawContent = JSON.parse(parsed.data.content);
 		} catch {
-			return fail(400, { error: 'Content is not valid JSON.', values: rawFields as Record<string, string> });
+			return fail(400, {
+				error: 'Content is not valid JSON.',
+				values: rawFields as Record<string, string>
+			});
 		}
 
 		const parsedContent = ProjectContentDocSchema.safeParse(rawContent);
