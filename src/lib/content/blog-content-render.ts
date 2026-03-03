@@ -99,11 +99,7 @@ function renderBlock(node: AnyNode): string {
 			// When the item only contains a single paragraph, render its
 			// inline content directly so we get <li>text</li> instead of
 			// <li><p>text</p></li>, which avoids unwanted margin/spacing.
-			if (
-				node.content &&
-				node.content.length === 1 &&
-				node.content[0].type === 'paragraph'
-			) {
+			if (node.content && node.content.length === 1 && node.content[0].type === 'paragraph') {
 				const para = node.content[0];
 				const inner = para.content ? renderInlineContent(para.content) : '';
 				return `<li>${inner}</li>`;
@@ -138,9 +134,7 @@ function renderInlineContent(nodes: AnyNode[]): string {
 			if (node.type === 'image') {
 				const src = esc((node.attrs?.src as string) ?? '');
 				const alt = node.attrs?.alt ? esc(node.attrs.alt as string) : '';
-				const titleAttr = node.attrs?.title
-					? ` title="${esc(node.attrs.title as string)}"`
-					: '';
+				const titleAttr = node.attrs?.title ? ` title="${esc(node.attrs.title as string)}"` : '';
 				return `<img src="${src}" alt="${alt}"${titleAttr} />`;
 			}
 			return '';
