@@ -33,120 +33,164 @@
 
 <div class="admin-container">
 	<SmallTitle>admin dashboard</SmallTitle>
+    <div class="editor-cards">
+        <section class="editor-card hero">
+            <h2>Start quote</h2>
+            <p class="editor-card__hint">
+                Use italic in the editor for words that should render with the underline style on the
+                homepage.
+            </p>
 
-	<section class="editor-card">
-		<h2>Start quote</h2>
-		<p class="editor-card__hint">
-			Use italic in the editor for words that should render with the underline style on the
-			homepage.
-		</p>
+            <Tipex
+                bind:tipex={editor}
+                oncreate={handleEditorCreate}
+                onupdate={handleEditorUpdate}
+                class="admin-tipex"
+            >
+                {#snippet controlComponent(tipex)}
+                    <div class="tipex-controller">
+                        <div class="tipex-basic-controller-wrapper">
+                            <button
+                                type="button"
+                                class="tipex-edit-button tipex-button-extra tipex-button-rigid"
+                                class:active={tipex?.isActive('italic')}
+                                onclick={() => tipex?.chain().focus().toggleMark('italic').run()}
+                                aria-label="Italic"
+                                title="Italic (⌘+I)"
+                            >
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                    <path
+                                        d="M7.991 11.674 9.53 4.455c.123-.595.246-.71 1.347-.807l.11-.52H7.211l-.11.52c1.06.096 1.128.212 1.005.807L6.57 11.674c-.123.595-.246.71-1.346.806l-.11.52h3.774l.11-.52c-1.06-.095-1.129-.211-1.006-.806z"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                {/snippet}
+            </Tipex>
 
-		<Tipex
-			bind:tipex={editor}
-			oncreate={handleEditorCreate}
-			onupdate={handleEditorUpdate}
-			class="admin-tipex"
-		>
-			{#snippet controlComponent(tipex)}
-				<div class="tipex-controller">
-					<div class="tipex-basic-controller-wrapper">
-						<button
-							type="button"
-							class="tipex-edit-button tipex-button-extra tipex-button-rigid"
-							class:active={tipex?.isActive('italic')}
-							onclick={() => tipex?.chain().focus().toggleMark('italic').run()}
-							aria-label="Italic"
-							title="Italic (⌘+I)"
-						>
-							<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-								<path
-									d="M7.991 11.674 9.53 4.455c.123-.595.246-.71 1.347-.807l.11-.52H7.211l-.11.52c1.06.096 1.128.212 1.005.807L6.57 11.674c-.123.595-.246.71-1.346.806l-.11.52h3.774l.11-.52c-1.06-.095-1.129-.211-1.006-.806z"
-								/>
-							</svg>
-						</button>
-					</div>
-				</div>
-			{/snippet}
-		</Tipex>
+            <form method="POST" action="?/saveStartQuote" class="editor-form">
+                <input type="hidden" name="startQuoteDoc" value={startQuoteDocJson} />
+                <label class="subtitle-input">
+                    <span>Hero subtitle</span>
+                    <input
+                        type="text"
+                        name="heroSubtitle"
+                        bind:value={heroSubtitle}
+                        maxlength={data.heroSubtitleMaxLength}
+                        required
+                    />
+                </label>
+                <button type="submit" disabled={!editorReady}>Save</button>
+            </form>
 
-		<form method="POST" action="?/saveStartQuote" class="editor-form">
-			<input type="hidden" name="startQuoteDoc" value={startQuoteDocJson} />
-			<label class="subtitle-input">
-				<span>Hero subtitle</span>
-				<input
-					type="text"
-					name="heroSubtitle"
-					bind:value={heroSubtitle}
-					maxlength={data.heroSubtitleMaxLength}
-					required
-				/>
-			</label>
-			<button type="submit" disabled={!editorReady}>Save</button>
-		</form>
+            {#if form?.startQuoteError}
+                <p class="status status--error">{form.startQuoteError}</p>
+            {/if}
 
-		{#if form?.startQuoteError}
-			<p class="status status--error">{form.startQuoteError}</p>
-		{/if}
+            {#if data.justSavedStartQuote}
+                <p class="status status--success">Start quote saved.</p>
+            {/if}
+        </section>
 
-		{#if data.justSavedStartQuote}
-			<p class="status status--success">Start quote saved.</p>
-		{/if}
-	</section>
+        <section class="editor-card about">
+            <h2>About</h2>
 
-	<section class="editor-card">
-		<h2>About</h2>
+            <form method="POST" action="?/saveAbout" class="editor-form">
+                <label class="subtitle-input subtitle-input--full">
+                    <span>About section</span>
+                    <div class="about-textarea-shell">
+                        <textarea
+                            class="about-textarea"
+                            name="aboutSection"
+                            bind:value={aboutSection}
+                            maxlength={data.aboutSectionMaxLength}
+                            required
+                            placeholder="Write your about section..."
+                        ></textarea>
+                    </div>
+                </label>
+                <button type="submit">Save</button>
+            </form>
 
-		<form method="POST" action="?/saveAbout" class="editor-form">
-			<label class="subtitle-input subtitle-input--full">
-				<span>About section</span>
-				<div class="about-textarea-shell">
-					<textarea
-						class="about-textarea"
-						name="aboutSection"
-						bind:value={aboutSection}
-						maxlength={data.aboutSectionMaxLength}
-						required
-						placeholder="Write your about section..."
-					></textarea>
-				</div>
-			</label>
-			<button type="submit">Save</button>
-		</form>
+            {#if form?.aboutError}
+                <p class="status status--error">{form.aboutError}</p>
+            {/if}
 
-		{#if form?.aboutError}
-			<p class="status status--error">{form.aboutError}</p>
-		{/if}
+            {#if data.justSavedAbout}
+                <p class="status status--success">About section saved.</p>
+            {/if}
+        </section>
 
-		{#if data.justSavedAbout}
-			<p class="status status--success">About section saved.</p>
-		{/if}
-	</section>
+        <section class="editor-card card-list projects">
+            <h2>Projects</h2>
+            <a href={ "/admin/projects/new" }>New</a>
+            <div class="project-list">
+                <i>No projects found...</i>
+            </div>
+        </section>
+        
+        <section class="editor-card card-list blog">
+            <h2>Blog posts</h2>
+            <div class="blog-list">
+                <i>No posts found...</i>
+            </div>
+        </section>
+</div>
 </div>
 
-<style>
+<style lang="scss">
 	.admin-container {
-		padding: 0 3rem 6rem 3rem;
+		padding: 6rem 3rem 6rem 3rem;
 		width: 100%;
 		max-width: 120rem;
 		margin: 0 auto;
-		display: flex;
+        display: flex;
 		flex-direction: column;
-		gap: 2.5rem;
 
 		@media (max-width: 768px) {
 			padding: 4rem 2rem;
 		}
 	}
 
+    .editor-cards {
+		display: grid;
+        gap: 1rem;
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: min-content min-content;
+    }
+
 	.editor-card {
 		background-color: white;
 		border: 1px solid color-mix(in srgb, var(--color-text) 15%, white);
 		border-radius: 0.75rem;
 		padding: 1.5rem;
-		max-width: 60rem;
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+
+        &.card-list {
+            display: grid;
+            grid-template-columns: auto min-content;
+            grid-template-rows: min-content auto;
+
+            & > div {
+                grid-column: 1 / -1;
+            }
+        }
+
+        &.hero {
+            grid-column: 1 / 2;
+        }
+
+        &.about {
+            grid-column: 1 / 2;
+        }
+
+        &.projects {
+            grid-row: 1 / 2;
+            grid-column: 2 / -1;
+        }
 	}
 
 	.editor-card h2 {
