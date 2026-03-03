@@ -13,45 +13,6 @@
 	let aboutSection = $state(data.aboutSection);
 	let editorReady = $state(false);
 
-	const TIPEX_STYLE_OWNER_ATTR = 'data-admin-tipex-style-owner';
-	const TIPEX_STYLE_LINK_ATTR = 'data-admin-tipex-style';
-
-	$effect(() => {
-		const existingLink = document.head.querySelector<HTMLLinkElement>(
-			`link[${TIPEX_STYLE_LINK_ATTR}]`
-		);
-		if (existingLink) {
-			existingLink.setAttribute(
-				TIPEX_STYLE_OWNER_ATTR,
-				String((Number(existingLink.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '0') || 0) + 1)
-			);
-			return () => {
-				const currentOwners = Number(existingLink.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '1') || 1;
-				if (currentOwners <= 1) {
-					existingLink.remove();
-				} else {
-					existingLink.setAttribute(TIPEX_STYLE_OWNER_ATTR, String(currentOwners - 1));
-				}
-			};
-		}
-
-		const link = document.createElement('link');
-		link.rel = 'stylesheet';
-		link.href = tipexStylesHref;
-		link.setAttribute(TIPEX_STYLE_LINK_ATTR, 'true');
-		link.setAttribute(TIPEX_STYLE_OWNER_ATTR, '1');
-		document.head.append(link);
-
-		return () => {
-			const currentOwners = Number(link.getAttribute(TIPEX_STYLE_OWNER_ATTR) ?? '1') || 1;
-			if (currentOwners <= 1) {
-				link.remove();
-			} else {
-				link.setAttribute(TIPEX_STYLE_OWNER_ATTR, String(currentOwners - 1));
-			}
-		};
-	});
-
 	function handleEditorCreate(event: EditorEvents['create']) {
 		const tiptapEditor = event.editor;
 		tiptapEditor.commands.setContent(data.startQuoteDoc, false);
@@ -67,6 +28,7 @@
 <svelte:head>
 	<title>Admin - Noah's Portfolio</title>
 	<meta name="description" content="Admin dashboard for managing portfolio content." />
+	<link rel="stylesheet" href={tipexStylesHref} />
 </svelte:head>
 
 <div class="admin-container">

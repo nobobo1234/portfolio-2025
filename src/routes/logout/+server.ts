@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { redirect, type RequestHandler } from '@sveltejs/kit';
 import crypto from 'node:crypto';
 import { prisma } from '$lib/server/prisma';
 
@@ -8,7 +8,7 @@ function hashSessionToken(token: string): string {
 	return crypto.createHash('sha256').update(token, 'utf8').digest('hex');
 }
 
-export const GET = async ({ cookies }) => {
+export const POST: RequestHandler = async ({ cookies }) => {
 	const sessionToken = cookies.get(SESSION_COOKIE_NAME);
 
 	if (sessionToken) {

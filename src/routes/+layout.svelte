@@ -9,11 +9,12 @@
     import AdminBubble from '$components/AdminBubble.svelte';
 	// Import navigation helpers
 	import { onNavigate, afterNavigate, beforeNavigate, disableScrollHandling } from '$app/navigation';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	gsap.registerPlugin(ScrollTrigger, SplitText);
 
 	let lenis: Lenis;
-	const scrollPositions = new Map<string, number>();
+	const scrollPositions = new SvelteMap<string, number>();
 
 	const waitForLayout = async () => {
 		await tick();
@@ -166,8 +167,12 @@
 	}
 
 	let { children, data } = $props();
-    let isAdmin = !!data.user;
+    let isAdmin = $derived(!!data.user);
 </script>
+
+<svelte:head>
+	<link rel="stylesheet" href="/view-transitions.css" />
+</svelte:head>
 
 <svelte:window onclick={captureClick} />
 

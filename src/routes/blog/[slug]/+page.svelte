@@ -1,15 +1,19 @@
-<script>
+<script lang="ts">
 	import CloseButton from '$components/CloseButton.svelte';
-	import { page } from '$app/state';
+	import { buildPostTransitionClasses } from '$lib/view-transition';
+	import type { PageProps } from './$types';
 
-	const slug = page.params?.slug ?? '';
+	const { params }: PageProps = $props();
+
+	const slug = $derived(params?.slug ?? '');
+	const transitionClasses = $derived(buildPostTransitionClasses(slug));
 </script>
 
 <div class="blog-post">
 	<CloseButton top="6rem" right="3rem" color="white" />
 	<header class="blog-header">
-		<h1 style="view-transition-name: post-title-{slug}; view-transition-class: vt-element">On predicting phrasing with transformers.</h1>
-		<span style="view-transition-name: post-date-{slug}; view-transition-class: vt-element">21-05-2025</span>
+		<h1 class={transitionClasses.titleClass}>On predicting phrasing with transformers.</h1>
+		<span class={transitionClasses.dateClass}>21-05-2025</span>
 	</header>
 
 	<article class="content">
