@@ -52,12 +52,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		cookies.delete(SAVE_FLASH_COOKIE_NAME, { path: '/admin' });
 	}
 
-	const [{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection }, projects] =
+	const [{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection }, projects, blogs] =
 		await Promise.all([
 			loadNormalizedHomeContent(),
 			prisma.project.findMany({
 				orderBy: { createdAt: 'desc' },
 				select: { id: true, slug: true, title: true, visible: true, createdAt: true }
+			}),
+			prisma.blog.findMany({
+				orderBy: { publishedAt: 'desc' },
+				select: { id: true, slug: true, title: true, publishedAt: true }
 			})
 		]);
 
@@ -67,6 +71,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		heroSubtitle,
 		aboutSection,
 		projects,
+		blogs,
 		justSavedStartQuote,
 		justSavedAbout,
 		heroSubtitleMaxLength: HERO_SUBTITLE_MAX_LENGTH,
@@ -181,9 +186,22 @@ const toggleVisibility: Actions['default'] = async ({ request }) => {
 	redirect(303, '/admin');
 };
 
+const deleteBlog: Actions['default'] = async ({ request }) => {
+	const formData = await request.formData();
+	const slug = formData.get('slug');
+
+	if (typeof slug !== 'string' || !slug.trim()) {
+		return fail(400, { deleteError: 'Missing blog post slug.' });
+	}
+
+	await prisma.blog.delete({ where: { slug } });
+	redirect(303, '/admin');
+};
+
 export const actions: Actions = {
 	saveStartQuote,
 	saveAbout,
 	deleteProject,
-	toggleVisibility
+	toggleVisibility,
+	deleteBlog
 };

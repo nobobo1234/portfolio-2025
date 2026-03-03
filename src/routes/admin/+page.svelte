@@ -14,6 +14,8 @@
 	let editorReady = $state(false);
 	let confirmDeleteSlug = $state<string | null>(null);
 	let confirmDeleteTitle = $state<string>('');
+	let confirmDeleteBlogSlug = $state<string | null>(null);
+	let confirmDeleteBlogTitle = $state<string>('');
 
 	function handleEditorCreate(event: EditorEvents['create']) {
 		const tiptapEditor = event.editor;
@@ -178,12 +180,64 @@
         
         <section class="editor-card card-list blog">
             <h2>Blog posts</h2>
+            <a href="/admin/blog/new" class="new-btn">+ New</a>
             <div class="blog-list">
-                <i>No posts found...</i>
+                {#each data.blogs as post (post.slug)}
+                    <div class="project-row">
+                        <a href="/admin/blog/{post.slug}" class="project-row__title">
+                            {post.title}
+                        </a>
+                        <button
+                            type="button"
+                            class="delete-btn"
+                            aria-label="Delete {post.title}"
+                            title="Delete post"
+                            onclick={() => { confirmDeleteBlogSlug = post.slug; confirmDeleteBlogTitle = post.title; }}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                <path d="M10 11v6M14 11v6"/>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                {:else}
+                    <i>No posts yet. Create one with the button above.</i>
+                {/each}
             </div>
         </section>
 </div>
 </div>
+
+{#if confirmDeleteBlogSlug}
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <div
+        class="modal-backdrop"
+        role="dialog"
+        tabindex="-1"
+        aria-modal="true"
+        aria-labelledby="modal-blog-title"
+        onkeydown={(e) => { if (e.key === 'Escape') confirmDeleteBlogSlug = null; }}
+    >
+        <div class="modal">
+            <h3 id="modal-blog-title">Delete blog post?</h3>
+            <p>
+                Are you sure you want to permanently delete
+                <strong>{confirmDeleteBlogTitle}</strong>? This cannot be undone.
+            </p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick={() => confirmDeleteBlogSlug = null}>
+                    Cancel
+                </button>
+                <form method="POST" action="?/deleteBlog">
+                    <input type="hidden" name="slug" value={confirmDeleteBlogSlug} />
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{/if}
 
 {#if confirmDeleteSlug}
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -264,6 +318,11 @@
 
         &.projects {
             grid-row: 1 / 2;
+            grid-column: 2 / -1;
+        }
+
+        &.blog {
+            grid-row: 2 / 3;
             grid-column: 2 / -1;
         }
 	}
@@ -389,7 +448,8 @@
 		&:hover { opacity: 0.75; }
 	}
 
-	.project-list {
+	.project-list,
+	.blog-list {
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
