@@ -1,6 +1,28 @@
+import fs from 'node:fs/promises';
 import { json } from '@sveltejs/kit';
-import { processAndSaveImage } from '$lib/server/upload';
+import { processAndSaveImage, UPLOAD_DIR } from '$lib/server/upload';
 import type { RequestHandler } from './$types';
+
+/**
+ * GET /admin/upload
+ *
+ * Returns a list of all previously uploaded image URLs.
+ * Response (200): { images: string[] }
+ */
+export const GET: RequestHandler = async () => {
+	try {
+		await fs.mkdir(UPLOAD_DIR, { recursive: true });
+		const entries = await fs.readdir(UPLOAD_DIR);
+		const images = entries
+			.filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
+			.sort()
+			.reverse()
+			.map((f) => `/uploads/${f}`);
+		return json({ images });
+	} catch {
+		return json({ error: 'Failed to read uploads directory.' }, { status: 500 });
+	}
+};
 
 /**
  * POST /admin/upload

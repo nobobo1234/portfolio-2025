@@ -6,29 +6,34 @@
 
 	const { onInsert, onClose }: Props = $props();
 
+	// ─── Tab state ────────────────────────────────────────────────────────────
+	type Tab = 'upload' | 'library';
+	let activeTab = $state<Tab>('upload');
+
+	// ─── Upload tab ───────────────────────────────────────────────────────────
 	let fileInput = $state<HTMLInputElement | null>(null);
 	let previewUrl = $state<string | null>(null);
 	let uploading = $state(false);
-	let errorMsg = $state<string | null>(null);
+	let uploadError = $state<string | null>(null);
 
 	function handleFileChange(e: Event) {
 		const input = e.target as HTMLInputElement;
 		const file = input.files?.[0];
 		if (previewUrl) URL.revokeObjectURL(previewUrl);
 		previewUrl = file ? URL.createObjectURL(file) : null;
-		errorMsg = null;
+		uploadError = null;
 	}
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		const file = fileInput?.files?.[0];
 		if (!file) {
-			errorMsg = 'Please select an image file.';
+			uploadError = 'Please select an image file.';
 			return;
 		}
 
 		uploading = true;
-		errorMsg = null;
+		uploadError = null;
 
 		try {
 			const form = new FormData();
@@ -38,16 +43,57 @@
 			const data = await res.json();
 
 			if (!res.ok || !data.url) {
-				errorMsg = data.error ?? 'Upload failed.';
+				uploadError = data.error ?? 'Upload failed.';
 				return;
 			}
 
 			onInsert(data.url);
 		} catch {
-			errorMsg = 'Network error. Please try again.';
+			uploadError = 'Network error. Please try again.';
 		} finally {
 			uploading = false;
 		}
+	}
+
+	// ─── Library tab ──────────────────────────────────────────────────────────
+	let libraryImages = $state<string[]>([]);
+	let libraryLoading = $state(false);
+	let libraryError = $state<string | null>(null);
+	let libraryFetched = $state(false);
+	let selectedUrl = $state<string | null>(null);
+
+	async function loadLibrary() {
+		if (libraryFetched) return;
+		libraryLoading = true;
+		libraryError = null;
+		try {
+			const res = await fetch('/admin/upload');
+			const data = await res.json();
+			if (!res.ok) {
+				libraryError = data.error ?? 'Failed to load images.';
+			} else {
+				libraryImages = data.images ?? [];
+			}
+		} catch {
+			libraryError = 'Network error. Please try again.';
+		} finally {
+			libraryLoading = false;
+			libraryFetched = true;
+		}
+	}
+
+	function switchTab(tab: Tab) {
+		activeTab = tab;
+		if (tab === 'library') loadLibrary();
+	}
+
+	// ─── Shared ───────────────────────────────────────────────────────────────
+	const canInsert = $derived(
+		activeTab === 'upload' ? !!previewUrl && !uploading : !!selectedUrl
+	);
+
+	function handleInsert() {
+		if (activeTab === 'library' && selectedUrl) onInsert(selectedUrl);
 	}
 
 	function handleBackdropClick(e: MouseEvent) {
@@ -80,37 +126,96 @@
 			</button>
 		</div>
 
-		<form class="modal-body" onsubmit={handleSubmit}>
-			<label class="file-label">
-				<span>Image file <span class="hint">(.jpg, .png, .webp — max 5 MB)</span></span>
-				<input
-					bind:this={fileInput}
-					type="file"
-					accept=".jpg,.jpeg,.png,.webp"
-					onchange={handleFileChange}
-					disabled={uploading}
-				/>
-			</label>
+		<div class="tabs" role="tablist">
+			<button
+				role="tab"
+				aria-selected={activeTab === 'upload'}
+				class="tab-btn"
+				class:active={activeTab === 'upload'}
+				onclick={() => switchTab('upload')}
+			>
+				Upload new
+			</button>
+			<button
+				role="tab"
+				aria-selected={activeTab === 'library'}
+				class="tab-btn"
+				class:active={activeTab === 'library'}
+				onclick={() => switchTab('library')}
+			>
+				Choose existing
+			</button>
+		</div>
 
-			{#if previewUrl}
-				<div class="preview-wrapper">
-					<img src={previewUrl} alt="Preview" class="preview" />
+		{#if activeTab === 'upload'}
+			<form class="modal-body" onsubmit={handleSubmit}>
+				<label class="file-label">
+					<span>Image file <span class="hint">(.jpg, .png, .webp — max 5 MB)</span></span>
+					<input
+						bind:this={fileInput}
+						type="file"
+						accept=".jpg,.jpeg,.png,.webp"
+						onchange={handleFileChange}
+						disabled={uploading}
+					/>
+				</label>
+
+				{#if previewUrl}
+					<div class="preview-wrapper">
+						<img src={previewUrl} alt="Preview" class="preview" />
+					</div>
+				{/if}
+
+				{#if uploadError}
+					<p class="error">{uploadError}</p>
+				{/if}
+
+				<div class="modal-actions">
+					<button type="button" class="btn-cancel" onclick={onClose} disabled={uploading}>
+						Cancel
+					</button>
+					<button type="submit" class="btn-insert" disabled={!canInsert}>
+						{#if uploading}Uploading…{:else}Insert{/if}
+					</button>
 				</div>
-			{/if}
+			</form>
+		{:else}
+			<div class="modal-body">
+				{#if libraryLoading}
+					<p class="library-status">Loading images…</p>
+				{:else if libraryError}
+					<p class="error">{libraryError}</p>
+				{:else if libraryImages.length === 0}
+					<p class="library-status">No uploaded images yet.</p>
+				{:else}
+					<div class="image-grid">
+						{#each libraryImages as url (url)}
+							<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_noninteractive_element_interactions -->
+							<img
+								src={url}
+								alt={url.split('/').pop()}
+								class="grid-thumb"
+								class:selected={selectedUrl === url}
+								onclick={() => (selectedUrl = selectedUrl === url ? null : url)}
+								title={url.split('/').pop()}
+							/>
+						{/each}
+					</div>
+					{#if selectedUrl}
+						<div class="preview-wrapper">
+							<img src={selectedUrl} alt="Selected" class="preview" />
+						</div>
+					{/if}
+				{/if}
 
-			{#if errorMsg}
-				<p class="error">{errorMsg}</p>
-			{/if}
-
-			<div class="modal-actions">
-				<button type="button" class="btn-cancel" onclick={onClose} disabled={uploading}>
-					Cancel
-				</button>
-				<button type="submit" class="btn-insert" disabled={uploading || !previewUrl}>
-					{#if uploading}Uploading…{:else}Insert{/if}
-				</button>
+				<div class="modal-actions">
+					<button type="button" class="btn-cancel" onclick={onClose}>Cancel</button>
+					<button type="button" class="btn-insert" disabled={!canInsert} onclick={handleInsert}>
+						Insert
+					</button>
+				</div>
 			</div>
-		</form>
+		{/if}
 	</div>
 </div>
 
@@ -129,7 +234,9 @@
 		background: white;
 		border-radius: 0.75rem;
 		padding: 1.75rem 2rem;
-		width: min(36rem, calc(100vw - 2rem));
+		width: min(42rem, calc(100vw - 2rem));
+		max-height: calc(100vh - 4rem);
+		overflow-y: auto;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 		display: flex;
 		flex-direction: column;
@@ -172,6 +279,37 @@
 		}
 	}
 
+	// ─── Tabs ──────────────────────────────────────────────────────────────────
+	.tabs {
+		display: flex;
+		gap: 0;
+		border-bottom: 1px solid color-mix(in srgb, var(--color-text) 15%, white);
+		margin-top: -0.25rem;
+	}
+
+	.tab-btn {
+		padding: 0.5rem 1rem;
+		font-size: 0.9rem;
+		border: none;
+		background: none;
+		cursor: pointer;
+		color: color-mix(in srgb, var(--color-text) 55%, white);
+		border-bottom: 2px solid transparent;
+		margin-bottom: -1px;
+		transition: color 0.15s, border-color 0.15s;
+
+		&:hover {
+			color: var(--color-text);
+		}
+
+		&.active {
+			color: var(--color-text);
+			border-bottom-color: var(--color-text);
+			font-weight: 500;
+		}
+	}
+
+	// ─── Body ──────────────────────────────────────────────────────────────────
 	.modal-body {
 		display: flex;
 		flex-direction: column;
@@ -216,6 +354,43 @@
 		display: block;
 	}
 
+	// ─── Library grid ──────────────────────────────────────────────────────────
+	.library-status {
+		font-size: 0.9rem;
+		color: color-mix(in srgb, var(--color-text) 55%, white);
+		text-align: center;
+		padding: 2rem 0;
+		margin: 0;
+	}
+
+	.image-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+		gap: 0.5rem;
+		max-height: 18rem;
+		overflow-y: auto;
+		padding: 0.25rem;
+	}
+
+	.grid-thumb {
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		border-radius: 0.4rem;
+		cursor: pointer;
+		border: 2px solid transparent;
+		transition: border-color 0.12s, opacity 0.12s;
+
+		&:hover {
+			opacity: 0.85;
+		}
+
+		&.selected {
+			border-color: var(--color-text);
+		}
+	}
+
+	// ─── Actions ───────────────────────────────────────────────────────────────
 	.error {
 		font-size: 0.9rem;
 		color: #b42318;
