@@ -17,6 +17,16 @@
 	let editorReady = $state(false);
 	let isDirty = $state(false);
 
+	let bannerPreviewUrl = $state<string | null>(null);
+
+	function handleBannerChange(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (bannerPreviewUrl) URL.revokeObjectURL(bannerPreviewUrl);
+		bannerPreviewUrl = file ? URL.createObjectURL(file) : null;
+		isDirty = true;
+	}
+
 	function handleEditorCreate(event: EditorEvents['create']) {
 		contentJson = JSON.stringify(event.editor.getJSON());
 		editorReady = true;
@@ -53,7 +63,7 @@
 <div class="new-project">
 	<SmallTitle>new project</SmallTitle>
 
-	<form method="POST" action="?/create" class="project-form"
+	<form method="POST" action="?/create" class="project-form" enctype="multipart/form-data"
 		oninput={() => { isDirty = true; }}
 		onsubmit={() => { isDirty = false; }}
 	>
@@ -111,8 +121,17 @@
 				</label>
 			</div>
 			<label class="field">
-				<span>Banner image URL</span>
-				<input type="text" name="bannerImgUrl" value={v?.bannerImgUrl ?? ''} required maxlength={500} placeholder="https://..." />
+				<span>Banner image <span class="optional">(.jpg, .png, .webp — max 5 MB)</span></span>
+				<input
+					type="file"
+					name="bannerImg"
+					accept=".jpg,.jpeg,.png,.webp"
+					required
+					onchange={handleBannerChange}
+				/>
+				{#if bannerPreviewUrl}
+					<img src={bannerPreviewUrl} alt="Banner preview" class="banner-preview" />
+				{/if}
 			</label>
 		</section>
 
@@ -271,6 +290,15 @@
 	.optional {
 		font-size: 0.8rem;
 		opacity: 0.6;
+	}
+
+	.banner-preview {
+		width: 100%;
+		max-height: 200px;
+		object-fit: cover;
+		border-radius: 0.375rem;
+		border: 1px solid color-mix(in srgb, var(--color-text) 20%, white);
+		margin-top: 0.5rem;
 	}
 
 	.form-actions {
