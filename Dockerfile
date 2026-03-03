@@ -23,7 +23,9 @@ RUN npm run build
 RUN rm -rf node_modules && bun install --production --no-frozen-lockfile
 
 # Stage 2: Production runtime
-FROM node:20-alpine AS runner
+# Use node:20-slim (Debian/glibc) to match the builder – required for sharp's
+# prebuilt native libvips binaries (they are glibc-linked and won't run on musl/Alpine).
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -40,6 +42,10 @@ RUN adduser --system --uid 1001 sveltekit
 COPY --from=builder --chown=sveltekit:sveltekit /app/build ./build
 COPY --from=builder --chown=sveltekit:sveltekit /app/node_modules ./node_modules
 COPY --from=builder --chown=sveltekit:sveltekit /app/package.json ./package.json
+
+# Create persistent directories and make them writable by the app user.
+# Both are bind-mounted from Docker named volumes in production.
+RUN mkdir -p /app/uploads /app/db && chown sveltekit:sveltekit /app/uploads /app/db
 
 # Switch to non-root user
 USER sveltekit
