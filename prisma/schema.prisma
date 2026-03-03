@@ -42,5 +42,6 @@ model HomeContent {
     id            String   @id
     startQuoteDoc String
     heroSubtitle  String   @default("For anyone trying to feel like themselves online.")
+    aboutSection  String   @default("I make and design websites for people like you. Not just single pages, but spaces that reflect your personality. Good websites should feel like a second language you already spoke, not something that screams. I’ve been coding websites since I was 11. Mostly out of curiosity, but honestly, because I’ve always been a little obsessed. That part hasn’t really changed.")
     updatedAt     DateTime @updatedAt
 }
