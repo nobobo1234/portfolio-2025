@@ -62,6 +62,7 @@ model Project {
   githubUrl    String?
   bannerImgUrl String
   technology   String
+  visible      Boolean  @default(true)
 }
 
 model Blog {
