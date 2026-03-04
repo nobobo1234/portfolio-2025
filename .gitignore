@@ -25,4 +25,5 @@ vite.config.ts.timestamp-*
 prisma/generated/
 dev.db
 
-uploads/
+# Uploaded files (runtime volume – not committed)
+/uploads/
