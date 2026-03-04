@@ -29,6 +29,7 @@ services:
       - .env
     environment:
       - UPLOAD_DIR=/app/uploads
+      - BODY_SIZE_LIMIT=5242880
       # Override DATABASE_URL so the DB lives on the persistent volume, not the
       # ephemeral container layer.  The .env value is ignored for this key.
       - DATABASE_URL=file:/app/db/dev.db
