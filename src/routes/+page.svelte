@@ -12,6 +12,9 @@
 
 	let tl = gsap.timeline();
 
+	const safeJsonLd = (obj: unknown) =>
+		JSON.stringify(obj).replace(/<\/script>/gi, '<\\/script>');
+
 	// The parallax effect: Starts moved UP by 20% (-20), and scrubs to 0 (natural position).
 	// This creates a "heavy" feeling where the text moves slower than the scroll.
 	const parallaxBig = (node: HTMLElement) => {
@@ -29,8 +32,21 @@
 </script>
 
 <svelte:head>
-	<title>Noah - Creative Developer</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Noah van Boven — Creative Developer</title>
+	<meta name="description" content={data.heroSubtitle} />
+	<meta property="og:title" content="Noah van Boven — Creative Developer" />
+	<meta property="og:description" content={data.heroSubtitle} />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:title" content="Noah van Boven — Creative Developer" />
+	<meta name="twitter:description" content={data.heroSubtitle} />
+	{@html `<script type="application/ld+json">${safeJsonLd({
+		'@context': 'https://schema.org',
+		'@type': 'Person',
+		name: 'Noah van Boven',
+		email: 'noahvanboven@gmail.com',
+		jobTitle: 'Creative Developer',
+		sameAs: ['https://www.linkedin.com/in/noahvanboven/']
+	})}</script>`}
 </svelte:head>
 
 <header class="header">

@@ -53,18 +53,21 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		cookies.delete(SAVE_FLASH_COOKIE_NAME, { path: '/admin' });
 	}
 
-	const [{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection, photoUrl }, projects, blogs] =
-		await Promise.all([
-			loadNormalizedHomeContent(),
-			prisma.project.findMany({
-				orderBy: { createdAt: 'desc' },
-				select: { id: true, slug: true, title: true, visible: true, createdAt: true }
-			}),
-			prisma.blog.findMany({
-				orderBy: { publishedAt: 'desc' },
-				select: { id: true, slug: true, title: true, publishedAt: true }
-			})
-		]);
+	const [
+		{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection, photoUrl },
+		projects,
+		blogs
+	] = await Promise.all([
+		loadNormalizedHomeContent(),
+		prisma.project.findMany({
+			orderBy: { createdAt: 'desc' },
+			select: { id: true, slug: true, title: true, visible: true, createdAt: true }
+		}),
+		prisma.blog.findMany({
+			orderBy: { publishedAt: 'desc' },
+			select: { id: true, slug: true, title: true, publishedAt: true }
+		})
+	]);
 
 	return {
 		startQuoteDoc,

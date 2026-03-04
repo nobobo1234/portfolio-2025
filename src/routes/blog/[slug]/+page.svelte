@@ -8,6 +8,9 @@
 	const slug = $derived(params?.slug ?? '');
 	const transitionClasses = $derived(buildPostTransitionClasses(slug));
 
+	const safeJsonLd = (obj: unknown) =>
+		JSON.stringify(obj).replace(/<\/script>/gi, '<\\/script>');
+
 	function formatDate(date: Date | string): string {
 		return new Date(date).toLocaleDateString('en-GB', {
 			day: '2-digit',
@@ -16,6 +19,25 @@
 		});
 	}
 </script>
+
+<svelte:head>
+	<title>{data.post.title} — Noah van Boven</title>
+	<meta name="description" content={data.post.description} />
+	<meta property="og:title" content={data.post.title} />
+	<meta property="og:description" content={data.post.description} />
+	<meta property="og:type" content="article" />
+	<meta property="article:published_time" content={data.post.publishedAtIso} />
+	<meta name="twitter:title" content={data.post.title} />
+	<meta name="twitter:description" content={data.post.description} />
+	{@html `<script type="application/ld+json">${safeJsonLd({
+		'@context': 'https://schema.org',
+		'@type': 'BlogPosting',
+		headline: data.post.title,
+		datePublished: data.post.publishedAtIso,
+		author: { '@type': 'Person', name: 'Noah van Boven' },
+		description: data.post.description
+	})}</script>`}
+</svelte:head>
 
 <div class="blog-post">
 	<CloseButton top="6rem" right="3rem" color="white" />

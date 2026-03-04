@@ -2,6 +2,7 @@
 	import Header from '$components/Navigation/Header.svelte';
 	import '../app.css';
 	import { onMount, tick } from 'svelte';
+	import { page } from '$app/state';
 	import Lenis from 'lenis';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -172,6 +173,7 @@
 
 <svelte:head>
 	<link rel="stylesheet" href="/view-transitions.css" />
+	<link rel="canonical" href={page.url.origin + page.url.pathname} />
 </svelte:head>
 
 <svelte:window onclick={captureClick} />
