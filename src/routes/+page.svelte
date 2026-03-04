@@ -74,10 +74,18 @@
 <section id="about" class="about">
 	<div class="column-2">
 		<h1 class="big-title" use:parallaxBig>
-			Hi I'm
-			<span> Noah </span>
-		</h1>
+            <span class="smaller">
+                Hi I'm
+            </span>
+			<span class="bigger"> Noah </span>
 		<p class="about__text">{data.aboutSection}</p>
+		</h1>
+        <div class="image-column">
+        <div class="about__image-wrapper">
+            <div class="tape" aria-label="Decorative tape"></div>
+            <img src='me.jpeg' alt="Myself" class="about__image" />
+        </div>
+        </div>
 	</div>
 </section>
 
@@ -120,9 +128,37 @@
 	<SmallTitle>contact</SmallTitle>
 	<h2 class="contact__title">Let's make something that sounds like you</h2>
 	<h2 class="contact__mail">noahvanboven@gmail.com</h2>
+    <hr>
+    <div class="contact__cta">
+        <div>
+            or find me on
+             <a 
+                href="https://www.linkedin.com/in/noahvanboven/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="contact__cta-linkedin"
+            >
+                linkedin
+
+                <!-- material icons -->
+                <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><g><rect fill="none" height="24" width="24"/></g><g><polygon points="6,6 6,8 14.59,8 5,17.59 6.41,19 16,9.41 16,18 18,18 18,6"/></g></svg>
+            </a>
+        </div>
+        <a href="/cv.pdf" target="_blank" rel="noopener noreferrer" class="contact__cta-cv">
+            download cv
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg>
+        </a>
+    </div>
 </section>
 
 <style lang="scss">
+    hr {
+        margin: 2rem auto;
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
 	.contact {
 		padding-top: 0rem;
 		&__title {
@@ -144,6 +180,82 @@
 				font-size: 1.5rem;
 			}
 		}
+
+        &__cta {
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.2);
+            // italic
+            font-style: italic;
+
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+
+            @media (max-width: 768px) {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+
+            &-linkedin {
+                color: rgba(255, 255, 255, 0.5);
+                font-style: normal;
+                font-size: 1.2rem;
+                text-decoration: none;
+                margin-left: 0.5rem;
+                transition: transform 0.2s ease;
+                display: inline-block;
+                transform: scale(1);
+                transition: transform 0.3s ease;
+
+                svg {
+                    width: 1rem;
+                    height: 1rem;
+                    fill: currentColor;
+                    transition: transform 0.3s ease;
+                }
+
+                &:hover {
+                    transform: scale(1.05);
+                    color: rgba(255, 255, 255, 0.8);
+
+                    svg {
+                        transform: translate(2px, -2px);
+                    }
+                }
+            }
+
+            &-cv {
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                padding: 0.3rem 0.6rem;
+                font-size: 1rem !important;
+                text-decoration: none;
+                color: rgba(255, 255, 255, 0.5);
+                transition: background-color transform 0.3s ease, color 0.3s ease;
+                font-style: normal;
+                transform: translateY(0);
+                border-radius: 5px;
+
+                svg {
+                    width: 1rem;
+                    height: 1rem;
+                    fill: currentColor;
+                    transition: transform 0.3s ease;
+                    transform: translate(0, 2px);
+                }
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                    transform: translateY(-2px);
+
+                    svg {
+                        transform: translate(0, 4px);
+                    }
+                }
+            }
+        }
 	}
 
 	header,
@@ -227,19 +339,40 @@
 		.column-2 {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			column-gap: 2rem;
+			column-gap: 4rem;
 
 			/* CHANGED: Stack columns on mobile */
 			@media (max-width: 768px) {
 				grid-template-columns: 1fr;
-				gap: 2rem;
+				gap: 3rem;
 			}
 		}
 
 		.big-title {
-			font-size: 12rem;
-			font-weight: 600;
-			text-align: right;
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+
+            .smaller {
+                font-style: italic;
+                font-size: 4rem;
+                color: #8a8578;
+                font-weight: 400;
+
+                @media only screen and (max-width: 500px) {
+                    font-size: 3rem;
+                }
+            }
+
+            .bigger {
+                font-weight: 700;
+                font-size: 12rem;
+                color: var(--color-text);
+
+                @media only screen and (max-width: 500px) {
+                    font-size: 6rem;
+                }
+            }
 
 			/* CHANGED: Add margin to compensate for parallax lift (-20% of height) */
 			/* 12rem * 0.2 = ~2.4rem. We use more to be safe. */
@@ -258,13 +391,50 @@
 
 		.about__text {
 			font-size: 2rem;
-			margin-top: 10rem;
 			white-space: pre-line;
+            font-weight: 400;
 
 			@media (max-width: 768px) {
 				font-size: 1.2rem;
-				margin-top: 2rem;
 			}
 		}
+
+        .image-column {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .about__image-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative; /* For positioning the tape */
+
+            .tape {
+                position: absolute;
+                top: -1rem;
+                left: 50%;
+                transform: translateX(-50%) rotate(-1deg);
+                width: 5rem;
+                height: 2rem;
+                background: rgba(245,240,232,0.75);
+                border: 1px solid rgba(0,0,0,0.08);
+                z-index: 4;
+            }
+        }
+
+        .about__image {
+            width: 100%;
+            max-width: 25rem;
+            transform: rotate(1deg);
+            box-shadow: 4px 6px 24px rgba(0,0,0,0.18);
+            object-fit: cover;
+
+            @media (max-width: 768px) {
+                max-width: 100%;
+            }
+        }
 	}
+
 </style>

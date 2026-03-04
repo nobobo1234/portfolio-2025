@@ -4,5 +4,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	// Adding tailwind processing for Tipex styling.
-	plugins: [tailwindcss(), sveltekit()]
+	plugins: [tailwindcss(), sveltekit()],
+	server: {
+		fs: {
+			allow: ['prisma/generated']
+		}
+	}
 });
