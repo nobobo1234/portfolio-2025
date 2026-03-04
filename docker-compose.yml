@@ -1,6 +1,26 @@
 services:
+  seeder:
+    build:
+      context: .
+      target: seeder
+      args:
+        - DATABASE_URL
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=file:/app/db/dev.db
+    volumes:
+      - db_data:/app/db
+    restart: 'no'
+
   sveltekit-app:
-    build: .
+    build:
+      context: .
+      args:
+        - DATABASE_URL
+    depends_on:
+      seeder:
+        condition: service_completed_successfully
     container_name: sveltekit-app
     ports:
       - '127.0.0.1:4800:4800'

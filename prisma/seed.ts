@@ -20,31 +20,38 @@ if (!databaseUrl) {
 	throw new Error('DATABASE_URL is not set');
 }
 
-// Fail fast to avoid seeding with an empty or missing password.
-if (!ADMIN_PASSWORD) {
-	throw new Error('ADMIN_PASSWORD is required to seed the admin user');
-}
-
 const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-	// Hash the password with explicit parameters for predictable hardness.
-	const passwordHash = await argon2.hash(ADMIN_PASSWORD, {
-		type: argon2.argon2id,
-		memoryCost: 19456,
-		timeCost: 2,
-		parallelism: 1
-	});
+	const existingUser = await prisma.user.findUnique({ where: { username: ADMIN_USERNAME } });
 
-	await prisma.user.upsert({
-		where: { username: ADMIN_USERNAME },
-		update: { passwordHash },
-		create: {
-			username: ADMIN_USERNAME,
-			passwordHash
+	if (!existingUser) {
+		// First run: ADMIN_PASSWORD is required to create the admin user.
+		if (!ADMIN_PASSWORD) {
+			throw new Error('ADMIN_PASSWORD is required to seed the admin user on first run');
 		}
-	});
+		const passwordHash = await argon2.hash(ADMIN_PASSWORD, {
+			type: argon2.argon2id,
+			memoryCost: 19456,
+			timeCost: 2,
+			parallelism: 1
+		});
+		await prisma.user.create({ data: { username: ADMIN_USERNAME, passwordHash } });
+		console.log('Admin user created. You can now remove ADMIN_PASSWORD from your .env.');
+	} else if (ADMIN_PASSWORD) {
+		// ADMIN_PASSWORD still present: update the hash so password changes are applied on redeploy.
+		const passwordHash = await argon2.hash(ADMIN_PASSWORD, {
+			type: argon2.argon2id,
+			memoryCost: 19456,
+			timeCost: 2,
+			parallelism: 1
+		});
+		await prisma.user.update({ where: { username: ADMIN_USERNAME }, data: { passwordHash } });
+		console.log('Admin password updated.');
+	} else {
+		console.log('Admin user already exists, skipping password seed.');
+	}
 
 	await prisma.homeContent.upsert({
 		where: { id: HOME_CONTENT_ID },
@@ -56,10 +63,6 @@ async function main() {
 			aboutSection: DEFAULT_ABOUT_SECTION
 		}
 	});
-
-	console.warn(
-		'Security reminder: remove ADMIN_PASSWORD from your .env now that the admin user is seeded.'
-	);
 }
 
 main()
