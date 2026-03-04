@@ -1,6 +1,8 @@
 import {
 	ABOUT_SECTION_MAX_LENGTH,
+	CONTACT_EMAIL_MAX_LENGTH,
 	DEFAULT_ABOUT_SECTION,
+	DEFAULT_CONTACT_EMAIL,
 	DEFAULT_HERO_SUBTITLE,
 	DEFAULT_START_QUOTE_DOC,
 	HERO_SUBTITLE_MAX_LENGTH,
@@ -47,6 +49,20 @@ export function sanitizeAboutSection(input: unknown): string {
 	}
 
 	return clamped;
+}
+
+export function sanitizeContactEmail(input: unknown): string {
+	if (typeof input !== 'string') {
+		return DEFAULT_CONTACT_EMAIL;
+	}
+
+	const normalized = input.trim().slice(0, CONTACT_EMAIL_MAX_LENGTH);
+
+	if (normalized.length === 0 || !normalized.includes('@')) {
+		return DEFAULT_CONTACT_EMAIL;
+	}
+
+	return normalized;
 }
 
 export function parseStartQuoteDoc(docJson: string): StartQuoteDoc {

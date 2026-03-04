@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { prisma } from '$lib/server/prisma';
 import {
 	ABOUT_SECTION_MAX_LENGTH,
+	CONTACT_EMAIL_MAX_LENGTH,
 	DEFAULT_ABOUT_SECTION,
+	DEFAULT_CONTACT_EMAIL,
 	DEFAULT_HERO_SUBTITLE,
 	DEFAULT_START_QUOTE_DOC,
 	HERO_SUBTITLE_MAX_LENGTH,
@@ -12,6 +14,7 @@ import {
 } from '$lib/content/home-content-schema';
 import {
 	sanitizeAboutSection,
+	sanitizeContactEmail,
 	sanitizeHeroSubtitle,
 	startQuoteDocToJson
 } from '$lib/content/home-content-normalize';
@@ -19,7 +22,7 @@ import { loadNormalizedHomeContent } from '$lib/server/home-content';
 import type { PageServerLoad } from './$types';
 
 const SAVE_FLASH_COOKIE_NAME = 'admin_saved_flash';
-type SavedSection = 'start-quote' | 'about' | 'photo';
+type SavedSection = 'start-quote' | 'about' | 'photo' | 'contact-email';
 
 const UpdateStartQuoteSchema = z.object({
 	startQuoteDoc: z.string().min(1).max(20000),
@@ -48,13 +51,14 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const justSavedStartQuote = savedSection === 'start-quote';
 	const justSavedAbout = savedSection === 'about';
 	const justSavedPhoto = savedSection === 'photo';
+	const justSavedContactEmail = savedSection === 'contact-email';
 
 	if (savedSection) {
 		cookies.delete(SAVE_FLASH_COOKIE_NAME, { path: '/admin' });
 	}
 
 	const [
-		{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection, photoUrl },
+		{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection, photoUrl, contactEmail },
 		projects,
 		blogs
 	] = await Promise.all([
@@ -75,13 +79,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		heroSubtitle,
 		aboutSection,
 		photoUrl,
+		contactEmail,
 		projects,
 		blogs,
 		justSavedStartQuote,
 		justSavedAbout,
 		justSavedPhoto,
+		justSavedContactEmail,
 		heroSubtitleMaxLength: HERO_SUBTITLE_MAX_LENGTH,
-		aboutSectionMaxLength: ABOUT_SECTION_MAX_LENGTH
+		aboutSectionMaxLength: ABOUT_SECTION_MAX_LENGTH,
+		contactEmailMaxLength: CONTACT_EMAIL_MAX_LENGTH
 	};
 };
 
@@ -210,6 +217,32 @@ export const actions: Actions = {
 	deleteProject,
 	toggleVisibility,
 	deleteBlog,
+	saveContactEmail: async ({ request, cookies }) => {
+		const formData = Object.fromEntries(await request.formData());
+		const contactEmail = sanitizeContactEmail(formData.contactEmail);
+
+		if (contactEmail === DEFAULT_CONTACT_EMAIL && formData.contactEmail !== DEFAULT_CONTACT_EMAIL) {
+			// sanitizeContactEmail fell back to default because input was invalid
+			if (!String(formData.contactEmail).includes('@')) {
+				return fail(400, { contactEmailError: 'Please enter a valid email address.' });
+			}
+		}
+
+		await prisma.homeContent.upsert({
+			where: { id: HOME_CONTENT_ID },
+			update: { contactEmail },
+			create: {
+				id: HOME_CONTENT_ID,
+				startQuoteDoc: startQuoteDocToJson(DEFAULT_START_QUOTE_DOC),
+				heroSubtitle: DEFAULT_HERO_SUBTITLE,
+				aboutSection: DEFAULT_ABOUT_SECTION,
+				contactEmail
+			}
+		});
+
+		setSaveFlashCookie(cookies, 'contact-email');
+		redirect(303, '/admin');
+	},
 	savePhoto: async ({ request, cookies }) => {
 		const formData = Object.fromEntries(await request.formData());
 		const photoUrl = formData.photoUrl;

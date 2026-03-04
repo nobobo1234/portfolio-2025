@@ -1,5 +1,6 @@
 import {
 	DEFAULT_ABOUT_SECTION,
+	DEFAULT_CONTACT_EMAIL,
 	DEFAULT_HERO_SUBTITLE,
 	DEFAULT_START_QUOTE_DOC,
 	HOME_CONTENT_ID
@@ -7,6 +8,7 @@ import {
 import {
 	parseStartQuoteDoc,
 	sanitizeAboutSection,
+	sanitizeContactEmail,
 	sanitizeHeroSubtitle,
 	startQuoteDocToJson
 } from '$lib/content/home-content-normalize';
@@ -22,18 +24,21 @@ export async function loadNormalizedHomeContent() {
 	const rawStartQuoteDoc = homeContent?.startQuoteDoc ?? DEFAULT_START_QUOTE_DOC_JSON;
 	const rawHeroSubtitle = homeContent?.heroSubtitle ?? DEFAULT_HERO_SUBTITLE;
 	const rawAboutSection = homeContent?.aboutSection ?? DEFAULT_ABOUT_SECTION;
+	const rawContactEmail = homeContent?.contactEmail ?? DEFAULT_CONTACT_EMAIL;
 	const photoUrl = homeContent?.photoUrl ?? null;
 
 	const startQuoteDoc = parseStartQuoteDoc(rawStartQuoteDoc);
 	const startQuoteDocJson = startQuoteDocToJson(startQuoteDoc);
 	const heroSubtitle = sanitizeHeroSubtitle(rawHeroSubtitle);
 	const aboutSection = sanitizeAboutSection(rawAboutSection);
+	const contactEmail = sanitizeContactEmail(rawContactEmail);
 
 	return {
 		startQuoteDoc,
 		startQuoteDocJson,
 		heroSubtitle,
 		aboutSection,
-		photoUrl
+		photoUrl,
+		contactEmail
 	};
 }

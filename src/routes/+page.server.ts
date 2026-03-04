@@ -4,7 +4,7 @@ import { loadNormalizedHomeContent } from '$lib/server/home-content';
 import { prisma } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async () => {
-	const [{ startQuoteDoc, heroSubtitle, aboutSection, photoUrl }, projects, blogs] =
+	const [{ startQuoteDoc, heroSubtitle, aboutSection, photoUrl, contactEmail }, projects, blogs] =
 		await Promise.all([
 			loadNormalizedHomeContent(),
 			prisma.project.findMany({
@@ -31,6 +31,7 @@ export const load: PageServerLoad = async () => {
 		heroSubtitle,
 		aboutSection,
 		photoUrl,
+		contactEmail,
 		projects,
 		blogs
 	};
