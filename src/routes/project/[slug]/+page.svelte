@@ -114,6 +114,10 @@
 		background-color: var(--color-bg);
 		position: relative;
 		z-index: 10;
+
+        @media only screen and (max-width: 768px) {
+            padding: 4rem 1.5rem;
+        }
 	}
 
 	/* ... rest of content styles ... */
