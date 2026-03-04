@@ -43,7 +43,7 @@
 		'@context': 'https://schema.org',
 		'@type': 'Person',
 		name: 'Noah van Boven',
-		email: 'noahvanboven@gmail.com',
+		email: data.contactEmail,
 		jobTitle: 'Creative Developer',
 		sameAs: ['https://www.linkedin.com/in/noahvanboven/']
 	})}</script>`}
@@ -143,7 +143,7 @@
 <section class="contact" id="contact">
 	<SmallTitle>contact</SmallTitle>
 	<h2 class="contact__title">Let's make something that sounds like you</h2>
-	<h2 class="contact__mail"><a href="mailto:noahvanboven@gmail.com">noahvanboven@gmail.com</a></h2>
+	<h2 class="contact__mail"><a href="mailto:{data.contactEmail}">{data.contactEmail}</a></h2>
     <hr>
     <div class="contact__cta">
         <div>

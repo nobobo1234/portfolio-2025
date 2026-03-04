@@ -41,7 +41,9 @@ export type StartQuoteDoc = z.infer<typeof StartQuoteDocSchema>;
 export const HOME_CONTENT_ID = 'home';
 export const HERO_SUBTITLE_MAX_LENGTH = 140;
 export const ABOUT_SECTION_MAX_LENGTH = 2400;
+export const CONTACT_EMAIL_MAX_LENGTH = 254;
 export const DEFAULT_HERO_SUBTITLE = 'For anyone trying to feel like themselves online.';
+export const DEFAULT_CONTACT_EMAIL = 'noahvanboven@gmail.com';
 export const DEFAULT_ABOUT_SECTION =
 	'I make and design websites for people like you. Not just single pages, but spaces that reflect your personality. Good websites should feel like a second language you already spoke, not something that screams. I’ve been coding websites since I was 11. Mostly out of curiosity, but honestly, because I’ve always been a little obsessed. That part hasn’t really changed.';
 export const DEFAULT_START_QUOTE_DOC: StartQuoteDoc = {

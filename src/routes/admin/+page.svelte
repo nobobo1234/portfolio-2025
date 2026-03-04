@@ -12,6 +12,7 @@
 	let startQuoteDocJson = $state(data.startQuoteDocJson);
 	let heroSubtitle = $state(data.heroSubtitle);
 	let aboutSection = $state(data.aboutSection);
+	let contactEmail = $state(data.contactEmail);
 	let editorReady = $state(false);
 	let confirmDeleteSlug = $state<string | null>(null);
 	let confirmDeleteTitle = $state<string>('');
@@ -137,6 +138,33 @@
 
             {#if data.justSavedAbout}
                 <p class="status status--success">About section saved.</p>
+            {/if}
+        </section>
+
+        <section class="editor-card contact-email">
+            <h2>Contact email</h2>
+            <p class="editor-card__hint">The email address displayed in the contact section of the homepage.</p>
+
+            <form method="POST" action="?/saveContactEmail" class="editor-form">
+                <label class="subtitle-input">
+                    <span>Email address</span>
+                    <input
+                        type="email"
+                        name="contactEmail"
+                        bind:value={contactEmail}
+                        maxlength={data.contactEmailMaxLength}
+                        required
+                    />
+                </label>
+                <button type="submit">Save</button>
+            </form>
+
+            {#if form?.contactEmailError}
+                <p class="status status--error">{form.contactEmailError}</p>
+            {/if}
+
+            {#if data.justSavedContactEmail}
+                <p class="status status--success">Contact email saved.</p>
             {/if}
         </section>
 
@@ -381,6 +409,7 @@
 	.editor-card h2 {
 		font-size: 1.4rem;
 		font-weight: 500;
+        color: var(--color-text);
 	}
 
 	.editor-card__hint {
