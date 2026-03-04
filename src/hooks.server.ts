@@ -59,11 +59,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
-	// Centralized gatekeeper: block /admin for unauthenticated users.
-	if (event.url.pathname.startsWith('/admin') && !isAuthenticated) {
-		throw redirect(303, '/login');
-	}
-
 	if (event.url.pathname === '/login' && isAuthenticated) {
 		// Prevent authenticated users from accessing the login page.
 		throw redirect(303, '/admin');

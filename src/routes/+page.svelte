@@ -143,7 +143,7 @@
 <section class="contact" id="contact">
 	<SmallTitle>contact</SmallTitle>
 	<h2 class="contact__title">Let's make something that sounds like you</h2>
-	<h2 class="contact__mail">noahvanboven@gmail.com</h2>
+	<h2 class="contact__mail"><a href="mailto:noahvanboven@gmail.com">noahvanboven@gmail.com</a></h2>
     <hr>
     <div class="contact__cta">
         <div>
@@ -195,6 +195,18 @@
 			@media (max-width: 768px) {
 				font-size: 1.5rem;
 			}
+
+            a {
+                color: inherit;
+                text-decoration: none;
+                border-bottom: 1px solid currentColor;
+                padding-bottom: 2px;
+                transition: opacity 0.2s ease;
+
+                &:hover {
+                    opacity: 0.5;
+                }
+            }
 		}
 
         &__cta {
@@ -426,6 +438,12 @@
             align-items: center;
             justify-content: center;
             position: relative; /* For positioning the tape */
+            transform: rotate(1deg);
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: rotate(-1deg) scale(1.02);
+            }
 
             .tape {
                 position: absolute;
@@ -443,9 +461,9 @@
         .about__image {
             width: 100%;
             max-width: 25rem;
-            transform: rotate(1deg);
             box-shadow: 4px 6px 24px rgba(0,0,0,0.18);
             object-fit: cover;
+
 
             @media (max-width: 768px) {
                 max-width: 100%;
