@@ -12,6 +12,7 @@
 </svelte:head>
 
 <div class="error-page">
+    <div class="ghost" id="ghost">{status}</div>
     <h1>{status}</h1>
     <p class="subtitle">this page has wandered off.</p>
     <p class="explanation">
@@ -56,5 +57,21 @@
         text-decoration: none;
         padding-bottom: 2px;
         border-bottom: 1px solid black;
+    }
+
+    .ghost {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 900;
+      font-size: clamp(12rem, 42vw, 32rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(26,26,24,0.1);
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
     }
 </style>
