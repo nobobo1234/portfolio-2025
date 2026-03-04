@@ -4,26 +4,27 @@ import { loadNormalizedHomeContent } from '$lib/server/home-content';
 import { prisma } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async () => {
-	const [{ startQuoteDoc, heroSubtitle, aboutSection, photoUrl }, projects, blogs] = await Promise.all([
-		loadNormalizedHomeContent(),
-		prisma.project.findMany({
-			where: { visible: true },
-			orderBy: { createdAt: 'asc' },
-			select: {
-				slug: true,
-				title: true,
-				subtitle: true,
-				year: true,
-				bannerImgUrl: true,
-				technology: true
-			}
-		}),
-		prisma.blog.findMany({
-			where: { publishedAt: { lte: new Date() } },
-			orderBy: { publishedAt: 'desc' },
-			select: { slug: true, title: true, publishedAt: true }
-		})
-	]);
+	const [{ startQuoteDoc, heroSubtitle, aboutSection, photoUrl }, projects, blogs] =
+		await Promise.all([
+			loadNormalizedHomeContent(),
+			prisma.project.findMany({
+				where: { visible: true },
+				orderBy: { createdAt: 'asc' },
+				select: {
+					slug: true,
+					title: true,
+					subtitle: true,
+					year: true,
+					bannerImgUrl: true,
+					technology: true
+				}
+			}),
+			prisma.blog.findMany({
+				where: { publishedAt: { lte: new Date() } },
+				orderBy: { publishedAt: 'desc' },
+				select: { slug: true, title: true, publishedAt: true }
+			})
+		]);
 
 	return {
 		startQuoteTokens: docToRenderTokens(startQuoteDoc),

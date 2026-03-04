@@ -8,7 +8,32 @@
 	const slug = $derived(params.slug);
 	const transitionClasses = $derived(buildProjectTransitionClasses(slug));
 	const project = data.project;
+
+	const safeJsonLd = (obj: unknown) =>
+		JSON.stringify(obj).replace(/<\/script>/gi, '<\\/script>');
 </script>
+
+<svelte:head>
+	<title>{project.name} — Noah van Boven</title>
+	<meta name="description" content={project.subtitle} />
+	<meta property="og:title" content={project.name} />
+	<meta property="og:description" content={project.subtitle} />
+	<meta property="og:type" content="website" />
+	{#if project.img}
+		<meta property="og:image" content={project.img} />
+		<meta name="twitter:image" content={project.img} />
+	{/if}
+	<meta name="twitter:title" content={project.name} />
+	<meta name="twitter:description" content={project.subtitle} />
+	{@html `<script type="application/ld+json">${safeJsonLd({
+		'@context': 'https://schema.org',
+		'@type': 'SoftwareApplication',
+		name: project.name,
+		description: project.subtitle,
+		url: project.demoUrl,
+		author: { '@type': 'Person', name: 'Noah van Boven' }
+	})}</script>`}
+</svelte:head>
 
 <div class="project-page">
 	<div class="hero-image-wrapper">
