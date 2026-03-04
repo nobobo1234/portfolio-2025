@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /login/
 Disallow: /logout/
 
-Sitemap: https://noahvanboven.com/sitemap.xml
+Sitemap: https://noahvb.nl/sitemap.xml
