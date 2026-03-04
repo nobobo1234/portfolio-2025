@@ -83,7 +83,7 @@
         <div class="image-column">
         <div class="about__image-wrapper">
             <div class="tape" aria-label="Decorative tape"></div>
-            <img src='me.jpeg' alt="Myself" class="about__image" />
+            <img src={data.photoUrl ?? 'me.jpeg'} alt="Myself" class="about__image" />
         </div>
         </div>
 	</div>

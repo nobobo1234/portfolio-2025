@@ -1,5 +1,6 @@
 <script lang="ts">
 	import SmallTitle from '$components/SmallTitle.svelte';
+	import ImageUploadModal from '$components/ImageUploadModal.svelte';
 	import { Tipex, type TipexEditor } from '@friendofsvelte/tipex';
 	import type { EditorEvents } from '@tiptap/core';
 	import tipexStylesHref from '@friendofsvelte/tipex/styles/index.css?url';
@@ -16,6 +17,19 @@
 	let confirmDeleteTitle = $state<string>('');
 	let confirmDeleteBlogSlug = $state<string | null>(null);
 	let confirmDeleteBlogTitle = $state<string>('');
+
+	// Photo editing
+	let showPhotoModal = $state(false);
+	let photoUrl = $state<string | null>(data.photoUrl ?? null);
+	let photoForm = $state<HTMLFormElement | null>(null);
+	let pendingPhotoUrl = $state('');
+
+	function handlePhotoInsert(url: string) {
+		showPhotoModal = false;
+		photoUrl = url;
+		pendingPhotoUrl = url;
+		photoForm?.requestSubmit();
+	}
 
 	function handleEditorCreate(event: EditorEvents['create']) {
 		const tiptapEditor = event.editor;
@@ -207,8 +221,40 @@
                 {/each}
             </div>
         </section>
+
+        <section class="editor-card photo">
+            <h2>Profile photo</h2>
+            {#if photoUrl}
+                <div class="photo-preview-wrapper">
+                    <img src={photoUrl} alt="About section portrait" class="photo-preview" />
+                </div>
+            {:else}
+                <p class="photo-placeholder">No photo set — the default <code>me.jpeg</code> will be used.</p>
+            {/if}
+            <button type="button" class="photo-edit-btn" onclick={() => showPhotoModal = true}>
+                {photoUrl ? 'Change photo' : 'Set photo'}
+            </button>
+            {#if form?.photoError}
+                <p class="status status--error">{form.photoError}</p>
+            {/if}
+            {#if data.justSavedPhoto}
+                <p class="status status--success">Photo saved.</p>
+            {/if}
+        </section>
 </div>
 </div>
+
+<!-- Hidden form to save photo URL via server action -->
+<form bind:this={photoForm} method="POST" action="?/savePhoto" style="display:none" aria-hidden="true">
+    <input type="hidden" name="photoUrl" value={pendingPhotoUrl} />
+</form>
+
+{#if showPhotoModal}
+    <ImageUploadModal
+        onInsert={handlePhotoInsert}
+        onClose={() => showPhotoModal = false}
+    />
+{/if}
 
 {#if confirmDeleteBlogSlug}
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -323,6 +369,11 @@
 
         &.blog {
             grid-row: 2 / 3;
+            grid-column: 2 / -1;
+        }
+
+        &.photo {
+            grid-row: 3 / 4;
             grid-column: 2 / -1;
         }
 	}
@@ -446,6 +497,48 @@
 		white-space: nowrap;
 		transition: opacity 0.15s;
 		&:hover { opacity: 0.75; }
+	}
+
+	/* ---- photo card ---- */
+	.photo-preview-wrapper {
+		width: 100%;
+	}
+
+	.photo-preview {
+		width: 100%;
+		max-width: 10rem;
+		border-radius: 0.5rem;
+		object-fit: cover;
+		box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.12);
+		display: block;
+	}
+
+	.photo-placeholder {
+		font-size: 0.9rem;
+		color: color-mix(in srgb, var(--color-text) 50%, white);
+		font-style: italic;
+
+		code {
+			font-style: normal;
+			font-size: 0.85em;
+			background: color-mix(in srgb, var(--color-text) 8%, white);
+			padding: 0.1em 0.3em;
+			border-radius: 0.25rem;
+		}
+	}
+
+	.photo-edit-btn {
+		display: inline-flex;
+		align-items: center;
+		font-size: 0.9rem;
+		padding: 0.35rem 0.8rem;
+		border: 1px solid var(--color-text);
+		background: white;
+		color: var(--color-text);
+		border-radius: 0.4rem;
+		cursor: pointer;
+		transition: background 0.15s;
+		&:hover { background: color-mix(in srgb, var(--color-text) 8%, white); }
 	}
 
 	.project-list,

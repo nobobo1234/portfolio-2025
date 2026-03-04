@@ -22,6 +22,7 @@ export async function loadNormalizedHomeContent() {
 	const rawStartQuoteDoc = homeContent?.startQuoteDoc ?? DEFAULT_START_QUOTE_DOC_JSON;
 	const rawHeroSubtitle = homeContent?.heroSubtitle ?? DEFAULT_HERO_SUBTITLE;
 	const rawAboutSection = homeContent?.aboutSection ?? DEFAULT_ABOUT_SECTION;
+	const photoUrl = homeContent?.photoUrl ?? null;
 
 	const startQuoteDoc = parseStartQuoteDoc(rawStartQuoteDoc);
 	const startQuoteDocJson = startQuoteDocToJson(startQuoteDoc);
@@ -32,6 +33,7 @@ export async function loadNormalizedHomeContent() {
 		startQuoteDoc,
 		startQuoteDocJson,
 		heroSubtitle,
-		aboutSection
+		aboutSection,
+		photoUrl
 	};
 }
