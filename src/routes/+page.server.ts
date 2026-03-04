@@ -4,7 +4,7 @@ import { loadNormalizedHomeContent } from '$lib/server/home-content';
 import { prisma } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async () => {
-	const [{ startQuoteDoc, heroSubtitle, aboutSection }, projects, blogs] = await Promise.all([
+	const [{ startQuoteDoc, heroSubtitle, aboutSection, photoUrl }, projects, blogs] = await Promise.all([
 		loadNormalizedHomeContent(),
 		prisma.project.findMany({
 			where: { visible: true },
@@ -29,6 +29,7 @@ export const load: PageServerLoad = async () => {
 		startQuoteTokens: docToRenderTokens(startQuoteDoc),
 		heroSubtitle,
 		aboutSection,
+		photoUrl,
 		projects,
 		blogs
 	};

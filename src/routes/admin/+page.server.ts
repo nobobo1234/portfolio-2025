@@ -19,7 +19,7 @@ import { loadNormalizedHomeContent } from '$lib/server/home-content';
 import type { PageServerLoad } from './$types';
 
 const SAVE_FLASH_COOKIE_NAME = 'admin_saved_flash';
-type SavedSection = 'start-quote' | 'about';
+type SavedSection = 'start-quote' | 'about' | 'photo';
 
 const UpdateStartQuoteSchema = z.object({
 	startQuoteDoc: z.string().min(1).max(20000),
@@ -47,12 +47,13 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const savedSection = cookies.get(SAVE_FLASH_COOKIE_NAME);
 	const justSavedStartQuote = savedSection === 'start-quote';
 	const justSavedAbout = savedSection === 'about';
+	const justSavedPhoto = savedSection === 'photo';
 
 	if (savedSection) {
 		cookies.delete(SAVE_FLASH_COOKIE_NAME, { path: '/admin' });
 	}
 
-	const [{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection }, projects, blogs] =
+	const [{ startQuoteDoc, startQuoteDocJson, heroSubtitle, aboutSection, photoUrl }, projects, blogs] =
 		await Promise.all([
 			loadNormalizedHomeContent(),
 			prisma.project.findMany({
@@ -70,10 +71,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		startQuoteDocJson,
 		heroSubtitle,
 		aboutSection,
+		photoUrl,
 		projects,
 		blogs,
 		justSavedStartQuote,
 		justSavedAbout,
+		justSavedPhoto,
 		heroSubtitleMaxLength: HERO_SUBTITLE_MAX_LENGTH,
 		aboutSectionMaxLength: ABOUT_SECTION_MAX_LENGTH
 	};
@@ -203,5 +206,28 @@ export const actions: Actions = {
 	saveAbout,
 	deleteProject,
 	toggleVisibility,
-	deleteBlog
+	deleteBlog,
+	savePhoto: async ({ request, cookies }) => {
+		const formData = Object.fromEntries(await request.formData());
+		const photoUrl = formData.photoUrl;
+
+		if (typeof photoUrl !== 'string' || !photoUrl.startsWith('/uploads/')) {
+			return fail(400, { photoError: 'Invalid photo URL.' });
+		}
+
+		await prisma.homeContent.upsert({
+			where: { id: HOME_CONTENT_ID },
+			update: { photoUrl },
+			create: {
+				id: HOME_CONTENT_ID,
+				startQuoteDoc: startQuoteDocToJson(DEFAULT_START_QUOTE_DOC),
+				heroSubtitle: DEFAULT_HERO_SUBTITLE,
+				aboutSection: DEFAULT_ABOUT_SECTION,
+				photoUrl
+			}
+		});
+
+		setSaveFlashCookie(cookies, 'photo');
+		redirect(303, '/admin');
+	}
 };
